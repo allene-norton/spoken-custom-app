@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
+import { getSession } from '@/utils/session';
+
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -8,13 +10,20 @@ import { Container } from '@/components/Container';
  */
 export const revalidate = 180;
 
-async function Content() {
+
+
+async function Content({ searchParams }: { searchParams: SearchParams }) {
+  const data = await getSession(searchParams);
+  console.log({ data });
+  console.log(data.workspace.id)
+  console.log(data.internalUser)
   return (
     <Container>
       <div className="w-full items-center justify-between font-mono text-sm lg:flex">
         <p className="fixed left-0 top-0 flex w-full justify-center lg:static lg:w-auto">
           Internal Page&nbsp;
         </p>
+        <p>Logged in user: {data.internalUser?.givenName} </p>
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center lg:static lg:h-auto lg:w-auto">
           <a
             className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
@@ -54,7 +63,7 @@ export default async function Page({
 }) {
   return (
     <TokenGate searchParams={searchParams}>
-      <Content />
+      <Content searchParams={searchParams}/>
     </TokenGate>
   );
 }
