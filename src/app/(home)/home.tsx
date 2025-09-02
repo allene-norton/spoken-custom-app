@@ -18,7 +18,8 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   });
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
-  console.log({ workspace, session });
+  const clients = await copilot.listClients?.();
+  console.log({ workspace, session, clients });
   return (
     <Container>
       <Welcome portalUrl={workspace.portalUrl} />
