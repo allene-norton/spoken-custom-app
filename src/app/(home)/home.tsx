@@ -18,11 +18,15 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   });
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
-  const clients = await copilot.listClients?.();
-  console.log({ workspace, session, clients });
+  const listClients = await copilot.listClients({limit:100})
+  const listCompanies = await copilot.listCompanies({name: "Nearly Media"})
+  console.log({ workspace, session });
+  // console.log(listClients.data);
+  console.log(listCompanies.data)
+  const company = listCompanies.data?.[0]
   return (
     <Container>
-      <Welcome portalUrl={workspace.portalUrl} />
+      <Welcome portalUrl={workspace.portalUrl} company={company} />
     </Container>
   );
 }

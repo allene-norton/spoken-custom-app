@@ -2,6 +2,7 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
+import { Company } from '@/app/types';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -9,7 +10,7 @@ import { Body, Heading, Icon } from 'copilot-design-system';
  */
 export const revalidate = 180;
 
-export function Welcome({ portalUrl }: { portalUrl?: string }) {
+export function Welcome({ portalUrl, company }: { portalUrl?: string; company?: Company }) {
   useBreadcrumbs(
     [
       {
@@ -26,7 +27,7 @@ export function Welcome({ portalUrl }: { portalUrl?: string }) {
           <Icon icon="Code" />
         </div>
         <div className="mb-2">
-          <Heading variant="3xl">Welcome to the custom app base Allene</Heading>
+          <Heading variant="3xl">Welcome to the custom app base {company?.name}</Heading>
         </div>
         <Body variant="lg" tag="p">
           This is a demo of a custom app that integrates with Copilot. Our goal
