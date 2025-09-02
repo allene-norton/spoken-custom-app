@@ -26,7 +26,7 @@ export function Welcome({ portalUrl }: { portalUrl?: string }) {
           <Icon icon="Code" />
         </div>
         <div className="mb-2">
-          <Heading variant="3xl">Welcome to the custom app base</Heading>
+          <Heading variant="3xl">Welcome to the custom app base Allene</Heading>
         </div>
         <Body variant="lg" tag="p">
           This is a demo of a custom app that integrates with Copilot. Our goal
@@ -95,6 +95,14 @@ export function Welcome({ portalUrl }: { portalUrl?: string }) {
           <p className={`m-0 mt-1 max-w-[30ch] text-sm opacity-50`}>
             Learn how to integrate your app with Copilot with this live demo of
             the App Bridge.
+          </p>
+        </div>
+        <div>
+          <a href="/internal" className="group" rel="noopener noreferrer">
+            <Heading variant="2xl">Internal</Heading>
+          </a>
+          <p className={`m-0 mt-1 max-w-[30ch] text-sm opacity-50`}>
+            Internal link
           </p>
         </div>
       </div>
