@@ -2,7 +2,8 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company } from '@/app/types';
+import { Company, Network } from '@/app/types';
+import { getNetworks } from '@/actions/omny';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -10,7 +11,13 @@ import { Company } from '@/app/types';
  */
 export const revalidate = 180;
 
-export function Welcome({ portalUrl, company }: { portalUrl?: string; company?: Company }) {
+export async function Welcome({
+  portalUrl,
+  company,
+}: {
+  portalUrl?: string;
+  company?: Company;
+}) {
   useBreadcrumbs(
     [
       {
@@ -20,6 +27,13 @@ export function Welcome({ portalUrl, company }: { portalUrl?: string; company?: 
     { portalUrl },
   );
 
+  const networks = await getNetworks();
+  // console.log(networks)
+  const network: Network | undefined = networks?.Items.find(
+    (network: Network) => network.Name === company?.name,
+  );
+  console.log(network);
+
   return (
     <>
       <header className="max-w-prose">
@@ -27,7 +41,9 @@ export function Welcome({ portalUrl, company }: { portalUrl?: string; company?: 
           <Icon icon="Code" />
         </div>
         <div className="mb-2">
-          <Heading variant="3xl">Welcome to the custom app base {company?.name}</Heading>
+          <Heading variant="3xl">
+            Welcome to the custom app base {company?.name}
+          </Heading>
         </div>
         <Body variant="lg" tag="p">
           This is a demo of a custom app that integrates with Copilot. Our goal
