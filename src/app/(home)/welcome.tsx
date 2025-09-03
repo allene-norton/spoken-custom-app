@@ -2,7 +2,7 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company, Programs } from '@/app/types';
+import { Company, Programs, Playlists } from '@/app/types';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -14,11 +14,13 @@ export const revalidate = 180;
 export async function Welcome({
   portalUrl,
   company,
-  programs
+  programs,
+  playlists
 }: {
   portalUrl?: string;
   company?: Company;
   programs?: Programs;
+  playlists?: Playlists;
 }) {
   useBreadcrumbs(
     [
@@ -49,7 +51,16 @@ export async function Welcome({
           <Heading variant="2xl">Program List</Heading>
           <ul>
             {programs?.map((program, index) => (
-              <li key={index}>{program.Name}</li>
+              <li key={program.Id}>{program.Name}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <Heading variant="2xl">Playlists</Heading>
+          <ul>
+            {playlists?.map((playlist, index) => (
+              <li key={playlist.Id}>{playlist.Title}</li>
             ))}
           </ul>
         </div>

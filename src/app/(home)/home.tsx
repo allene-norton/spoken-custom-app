@@ -33,11 +33,11 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   // console.log(programs)
 
   const playlists = await getPlaylistsByNetwork(network?.Id)
-  console.log(playlists)
+  // console.log(playlists)
 
   return (
     <Container>
-      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} />
+      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} playlists={playlists} />
     </Container>
   );
 }
