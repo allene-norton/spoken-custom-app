@@ -72,3 +72,58 @@ export interface Program {
 }
 
 export type Programs = Program[];
+
+export interface Playlist {
+  ProgramId: string;
+  Title: string;
+  Slug: string;
+  Description: string;
+  Author: string | null;
+  DescriptionHtml: string;
+  ShortSummary: string;
+  SocialWeb: string;
+  SortOption: string;
+  ContentRating: string;
+  PodcastType: string;
+  HasImage: boolean;
+  NumberOfClips: number;
+  Visibility: string;
+  Categories: string[];
+  DirectoryLinks: {
+    RssFeed: string;
+    ApplePodcasts: string | null;
+    GooglePodcasts: string | null;
+    Spotify: string | null;
+    TuneIn: string | null;
+    IHeart: string | null;
+    AmazonMusic: string | null;
+    YouTubeMusic: string | null;
+  };
+  CustomFieldData: Record<string, any>;
+  IsSharedWithOtherPrograms: boolean;
+  PrivateNotes: string | null;
+  RssFeedUrlRedirect: string | null;
+  IsRssFeedRedirected: boolean;
+  Blocked: boolean;
+  MemberDownloadsAdFree: boolean;
+  RssFeedPageSize: number;
+  Deleted: boolean;
+  Urls: {
+    ShowPageUrl: string;
+    RssFeedUrl: string;
+    AdFreeRssFeedUrl: string;
+    EmbedUrl: string;
+    ImagePublicUrl: string;
+  };
+  ThirdPartyRssText: {
+    ApplePodcastVerify: string | null;
+  };
+  Id: string;
+  OrganizationId: string;
+  CreatedAtUtc: string;
+  CreatedById: string;
+  ModifiedAtUtc: string;
+  ModifiedById: string;
+}
+
+export type Playlists = Playlist[];
