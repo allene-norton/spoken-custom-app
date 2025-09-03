@@ -127,3 +127,80 @@ export interface Playlist {
 }
 
 export type Playlists = Playlist[];
+
+export interface Clip {
+  Title: string;
+  Slug: string;
+  Description: string;
+  DescriptionHtml: string;
+  Tags: string[];
+  Season: number;
+  Episode: number;
+  EpisodeType: string;
+  Urls: {
+    EmbedShareLinkOverrideUrl: string | null;
+    ImagePublicUrl: string;
+    ImagePrivateUrl: string;
+    AudioPublicUrl: string;
+    AudioPrivateUrl: string;
+    ShowPageUrl: string;
+    AudioPublicAdFreeUrl: string;
+    EmbedUrl: string;
+    WaveformLowResUrl: string;
+    WaveformHighResUrl: string;
+  };
+  DurationSeconds: number;
+  PublishedDurationSeconds: number;
+  PublishState: string;
+  Visibility: string;
+  PublishedUtc: string;
+  PlaylistIds: string[];
+  Chapters: any[]; // You might want to define a Chapter interface if you have chapter data
+  State: string;
+  RssLinkOverride: string | null;
+  ImportedId: string | null;
+  Monetization: {
+    PreRoll: any; // Define specific structure if needed
+    MidRolls: any[]; // Define specific structure if needed
+    PostRoll: any; // Define specific structure if needed
+    VideoPreRollForEmbedEnabled: boolean;
+  };
+  RecordingMetadata: any | null;
+  ProgramId: string;
+  PublishedAudioSizeInBytes: number;
+  ContentRating: string;
+  AudioOptions: {
+    IncludeIntroOutro: boolean;
+    AutoLevelAudio: boolean;
+  };
+  ExternalId: string | null;
+  CustomFieldData: Record<string, any>;
+  UploadedAudioFileName: string;
+  ShortSummary: string | null;
+  HasImage: boolean;
+  AudioProcessingProblem: any | null;
+  AudioProcessingProblemDismissed: boolean;
+  CreatedFromAutoPodcast: boolean;
+  MemberDownloadsAdFree: boolean;
+  TranscriptStatus: string;
+  Deleted: boolean;
+  VisibleAtUtc: string | null;
+  ScheduledVisibility: any | null;
+  Id: string;
+  OrganizationId: string;
+  CreatedAtUtc: string;
+  CreatedById: string;
+  ModifiedAtUtc: string;
+  ModifiedById: string;
+}
+
+export type Clips = Clip[]
+
+
+
+export type EpisodeType = 'Full' | 'Trailer' | 'Bonus';
+export type PublishState = 'Published' | 'Draft' | 'Scheduled';
+export type Visibility = 'Public' | 'Private' | 'Unlisted';
+export type ClipState = 'Ready' | 'Processing' | 'Error';
+export type ContentRating = 'Clean' | 'Explicit';
+export type TranscriptStatus = 'None' | 'Processing' | 'Complete' | 'Error';

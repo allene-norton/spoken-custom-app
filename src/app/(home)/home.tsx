@@ -3,7 +3,7 @@ import { copilotApi } from 'copilot-node-sdk';
 import { Welcome } from '@/app/(home)/welcome';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
-import { getNetworkByName, getProgramsByNetwork, getPlaylistsByNetwork } from '@/actions/omny';
+import { getNetworkByName, getProgramsByNetwork, getPlaylistsByNetwork, getClipsByPlaylist } from '@/actions/omny';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -35,9 +35,15 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   const playlists = await getPlaylistsByNetwork(network?.Id)
   // console.log(playlists)
 
+  const recentPlaylists = playlists[0]
+  // console.log(recentPlaylists)
+
+  const recentClips = await getClipsByPlaylist(recentPlaylists?.Id)
+  console.log(recentClips)
+
   return (
     <Container>
-      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} playlists={playlists} />
+      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} playlists={playlists} recentClips={recentClips}/>
     </Container>
   );
 }

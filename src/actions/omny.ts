@@ -1,4 +1,4 @@
-import { Network } from '@/app/types';
+import { Network, Clips, Clip } from '@/app/types';
 
 const omnyKey = process.env.OMNY_API_KEY;
 
@@ -44,7 +44,7 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
     options,
   );
   const clips = await response.json();
-  return clips.Items;
+  return clips.Items.slice(0, 10).map((item: {Clip: Clip}) => item.Clip);
 }
 
 /* 

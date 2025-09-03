@@ -2,7 +2,7 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company, Programs, Playlists } from '@/app/types';
+import { Company, Programs, Playlists, Clips } from '@/app/types';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -21,6 +21,7 @@ export async function Welcome({
   company?: Company;
   programs?: Programs;
   playlists?: Playlists;
+  recentClips?: Clips;
 }) {
   useBreadcrumbs(
     [
