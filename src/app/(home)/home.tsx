@@ -39,7 +39,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   // console.log(recentPlaylists)
 
   const recentClips = await getClipsByPlaylist(recentPlaylists?.Id)
-  // console.log(recentClips)
+  console.log(recentClips)
 
   return (
     <Container>

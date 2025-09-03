@@ -71,7 +71,7 @@ export async function Welcome({
           <Heading variant="2xl">Recent Clips</Heading>
           <ul>
             {recentClips?.map((clip, index) => (
-              <li key={clip.Id}>{clip.Title}</li>
+              <li key={clip.Id}>{clip.Title} {clip.ModifiedAtUtc}</li>
             ))}
           </ul>
         </div>

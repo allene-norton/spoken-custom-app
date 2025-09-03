@@ -53,11 +53,11 @@ TODO: Sept. 3, 2025:
 Get all playlists for a network (done)
   > Create type for playlist (done)
   > Sort by last modified date (done, automatic)
-Get clips by playlist
-  > Create type for clips
+Get clips by playlist (done)
+  > Create type for clips (done)
 
-Create array of clip objects for all playlists
-  > Sort by date latest - earliest
+Create array of clip objects for 3 most recent playlists
+  > Sort by ModifiedAtUtc latest - earliest
 
 Render 10 latest clips for network on home page (clickable)
   > Status icon, image, name, publish date 
