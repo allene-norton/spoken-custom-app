@@ -2,15 +2,14 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company, Network } from '@/app/types';
-import { getNetworks, getProgramsByNetwork } from '@/actions/omny';
-import { useState } from 'react';
+import { Company } from '@/app/types';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
  * all fetches that occur within it. This value is in seconds.
  */
 export const revalidate = 180;
+
 
 export async function Welcome({
   portalUrl,
@@ -28,19 +27,6 @@ export async function Welcome({
     { portalUrl },
   );
 
-  const [programs, setPrograms] = useState([]);
-
-
-  const networks = await getNetworks();
-  // console.log(networks)
-  const network: Network | undefined = networks?.Items.find(
-    (network: Network) => network.Name === company?.name,
-  );
-  console.log(network);
-
-  const allPrograms = await getProgramsByNetwork(network?.Id)
-  setPrograms(allPrograms)
-  console.log(programs)
 
   return (
     <>
@@ -59,18 +45,6 @@ export async function Welcome({
           part of our software, creating a seamless experience for your clients.
         </Body>
       </header>
-
-      <div>
-        {programs && programs.length > 0 && (
-          <ul className="list-disc pl-6 mt-4">
-            {programs.map((program) => (
-              <li key={program.Id} className="mb-2">
-                {program.Name}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
       <div className="grid grid-cols-2 gap-8 mt-12 max-w-prose">
         <div>
