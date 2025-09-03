@@ -44,7 +44,8 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
     options,
   );
   const clips = await response.json();
-  return clips.Items.slice(0, 10).map((item: {Clip: Clip}) => item.Clip);
+  const recentClips = clips.Items.slice(0, 10).map((item: {Clip: Clip}) => item.Clip);
+  return recentClips
 }
 
 /* 

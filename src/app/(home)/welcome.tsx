@@ -15,7 +15,8 @@ export async function Welcome({
   portalUrl,
   company,
   programs,
-  playlists
+  playlists,
+  recentClips
 }: {
   portalUrl?: string;
   company?: Company;
@@ -62,6 +63,15 @@ export async function Welcome({
           <ul>
             {playlists?.map((playlist, index) => (
               <li key={playlist.Id}>{playlist.Title}</li>
+            ))}
+          </ul>
+        </div>
+
+         <div>
+          <Heading variant="2xl">Recent Clips</Heading>
+          <ul>
+            {recentClips?.map((clip, index) => (
+              <li key={clip.Id}>{clip.Title}</li>
             ))}
           </ul>
         </div>
