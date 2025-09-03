@@ -3,6 +3,7 @@ import { copilotApi } from 'copilot-node-sdk';
 import { Welcome } from '@/app/(home)/welcome';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
+import { getNetworkByName, getProgramsByNetwork } from '@/actions/omny';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -12,21 +13,28 @@ export const revalidate = 180;
 
 async function Content({ searchParams }: { searchParams: SearchParams }) {
   const { token } = searchParams;
+
+  // Copilot API
   const copilot = copilotApi({
     apiKey: process.env.COPILOT_API_KEY ?? '',
     token: typeof token === 'string' ? token : undefined,
   });
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
-  const listClients = await copilot.listClients({limit:100})
   const listCompanies = await copilot.listCompanies({name: "Nearly Media"})
   console.log({ workspace, session });
-  // console.log(listClients.data);
-  console.log(listCompanies.data)
   const company = listCompanies.data?.[0]
+
+  // Omny API
+
+  const network = await getNetworkByName(company?.name)
+  // console.log(network)
+  const programs = await getProgramsByNetwork(network?.Id)
+  // console.log(programs)
+
   return (
     <Container>
-      <Welcome portalUrl={workspace.portalUrl} company={company} />
+      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} />
     </Container>
   );
 }

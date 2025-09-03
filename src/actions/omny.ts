@@ -20,8 +20,8 @@ export async function getNetworkByName (companyName: string | undefined){
   return network
 }
 
-export async function getProgramsByNetwork(networkId?: string) {
+export async function getProgramsByNetwork(networkId?: string | undefined) {
   const response = await fetch(`${OMNY_BASE_URI}/networks/${networkId}/programs`, options)
   const programs = await response.json()
-  return programs
+  return programs.Items
 }

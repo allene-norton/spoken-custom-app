@@ -2,7 +2,7 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company } from '@/app/types';
+import { Company, Programs } from '@/app/types';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -14,9 +14,11 @@ export const revalidate = 180;
 export async function Welcome({
   portalUrl,
   company,
+  programs
 }: {
   portalUrl?: string;
   company?: Company;
+  programs?: Programs;
 }) {
   useBreadcrumbs(
     [
@@ -62,6 +64,14 @@ export async function Welcome({
           <Body variant="base" tag="p" className="mt-1 text-gray-500">
             Find detailed information about the Copilot API.
           </Body>
+        </div>
+
+        <div>
+          <ul>
+            {programs?.map((program, index) => (
+              <li key={index}>{program.Name}</li>
+            ))}
+          </ul>
         </div>
 
         <div>
