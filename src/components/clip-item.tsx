@@ -18,6 +18,8 @@ const StatusIcon = ({ status }: { status: PublishState }) => {
       return <Clock className="w-4 h-4" />;
     case 'Draft':
       return <Edit3 className="w-4 h-4" />;
+    case 'Unpublished':
+      return <Edit3 className="w-4 h-4" />;
   }
 };
 
