@@ -42,9 +42,11 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   console.log(recentClips)
 
   return (
-    <Container>
+    // <Container>
+    <>
       <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} playlists={playlists} recentClips={recentClips}/>
-    </Container>
+    {/* </Container> */}
+    </>
   );
 }
 

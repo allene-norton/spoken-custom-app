@@ -36,9 +36,9 @@ export async function Welcome({
 
   return (
     <>
-      <div className="h-screen bg-background p-6 flex flex-col">
-        <div className="max-w-7xl mx-auto flex-1 flex flex-col">
-          <header className="mb-4">
+      <div className="h-screen bg-background p-6 flex flex-col overflow-hidden">
+        <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
+          <header className="mb-4 flex-shrink-0">
             <h1 className="text-3xl font-bold text-foreground text-balance">
               {company?.name}
             </h1>
@@ -46,8 +46,8 @@ export async function Welcome({
           {/* Main Content */}
           <div className="flex-1 flex gap-8 min-h-0">
             {/* Left Column: Programs */}
-            <div className="flex-1 flex flex-col">
-              <h2 className="text-2xl font-semibold text-foreground mb-4">
+            <div className="flex-1 flex flex-col min-h-0">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex-shrink-0">
                 Programs
               </h2>
 
@@ -61,8 +61,8 @@ export async function Welcome({
             </div>
 
             {/* Right Column: Latest Episodes */}
-            <div className="flex-1 flex flex-col">
-              <h2 className="text-2xl font-semibold text-foreground mb-4">
+            <div className="flex-1 flex flex-col min-h-0">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex-shrink-0">
                 Latest Episodes
               </h2>
 
@@ -80,44 +80,3 @@ export async function Welcome({
     </>
   );
 }
-
-/* 
-
- <div>
-          <Heading variant="2xl">Program List</Heading>
-          <ul>
-            {programs?.map((program, index) => (
-              <li key={program.Id}>{program.Name}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <Heading variant="2xl">Playlists</Heading>
-          <ul>
-            {playlists?.map((playlist, index) => (
-              <li key={playlist.Id}>{playlist.Title}</li>
-            ))}
-          </ul>
-        </div>
-
-         <div>
-          <Heading variant="2xl">Recent Clips</Heading>
-          <ul>
-            {recentClips?.map((clip, index) => (
-              <li key={clip.Id}>{clip.Title} {clip.ModifiedAtUtc}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <a href="/internal" className="group" rel="noopener noreferrer">
-            <Heading variant="2xl">Internal</Heading>
-          </a>
-          <p className={`m-0 mt-1 max-w-[30ch] text-sm opacity-50`}>
-            Internal link
-          </p>
-        </div>
-
-
-*/
