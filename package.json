@@ -84,5 +84,9 @@
     "tw-animate-css": "1.3.3",
     "typescript": "^5.3.3"
   },
+  "resolutions": {
+    "copilot-design-system/react": "^18.2.0",
+    "copilot-design-system/react-dom": "^18.2.0"
+  },
   "packageManager": "yarn@4.1.0"
 }
