@@ -1,5 +1,6 @@
-import { Clock, Check, Edit3 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Clock, Check, Edit3, CalendarOff } from 'lucide-react';
+import { Card} from '@/components/ui/card';
 import {
   Clip,
   Clips,
@@ -19,7 +20,7 @@ const StatusIcon = ({ status }: { status: PublishState }) => {
     case 'Draft':
       return <Edit3 className="w-4 h-4" />;
     case 'Unpublished':
-      return <Edit3 className="w-4 h-4" />;
+      return <CalendarOff className="w-4 h-4" />;
   }
 };
 
@@ -37,30 +38,44 @@ const getStatusColor = (status: PublishState) => {
 interface ClipItemProps {
   clip: Clip;
 }
+
 export default function ClipItem({ clip }: ClipItemProps) {
+  const [imageSrc, setImageSrc] = useState('/placeholder.svg');
+
+  useEffect(() => {
+    const validateImage = () => {
+      const img = new Image();
+      img.onload = () => {
+        setImageSrc(clip.Urls.ImagePublicUrl);
+      };
+      img.onerror = () => {
+        setImageSrc('/placeholder.svg');
+      };
+      img.src = clip.Urls.ImagePublicUrl;
+    };
+
+    if (clip.Urls.ImagePublicUrl) {
+      validateImage();
+    }
+  }, [clip.Urls.ImagePublicUrl]);
+
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center gap-4 p-4">
+      <div className="flex items-center gap-3 px-2 py-0.5">
         {/* Thumbnail */}
         <div className="w-12 h-12 flex-shrink-0">
           <img
-            src={
-              clip.Urls.ImagePublicUrl ||
-              `/placeholder.svg?height=48&width=48&query=${
-                encodeURIComponent(clip.Title + ' clip thumbnail') ||
-                '/placeholder.svg'
-              }`
-            }
+            src={imageSrc}
             alt={`${clip.Title} thumbnail`}
             className="w-full h-full object-cover rounded-md"
           />
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-1">
+        <div className="flex-1 min-w-0 pr-1">
+          <div className="flex items-center gap-2 mb-0.5">
             <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-medium ${getStatusColor(
                 clip.PublishState as PublishState,
               )}`}
             >
@@ -69,17 +84,19 @@ export default function ClipItem({ clip }: ClipItemProps) {
             </div>
           </div>
 
-          <h3 className="font-medium text-card-foreground text-pretty mb-1">
-            {clip.Title}
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-card-foreground text-pretty flex-1">
+              {clip.Title}
+            </h3>
 
-          <p className="text-sm text-muted-foreground">
-            {new Date(clip.PublishedUtc).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
+            <p className="text-sm text-muted-foreground ml-3 flex-shrink-0">
+              {new Date(clip.PublishedUtc).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          </div>
         </div>
       </div>
     </Card>

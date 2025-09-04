@@ -67,7 +67,7 @@ export async function Welcome({
               </h2>
 
               <div className="flex-1 overflow-y-auto">
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {recentClips?.slice(0, 10).map((clip) => (
                     <ClipItem key={clip.Id} clip={clip} />
                   ))}
