@@ -1,24 +1,30 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+// import { Analytics } from '@vercel/analytics/next'
+// import { Inter } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+// const inter = Inter({ subsets: ['latin'] });
 
 import 'copilot-design-system/dist/styles/main.css';
 
 export const metadata: Metadata = {
-  title: 'Custom App',
-  description: 'Copilot Custom App Example',
+  title: 'Spoken Custom App',
+  description: 'Custom app for Spoken',
 };
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en">
-      <body className={[inter.className].join(' ')}>{children}</body>
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        {children}
+        {/* <Analytics /> */}
+      </body>
     </html>
-  );
+  )
 }
