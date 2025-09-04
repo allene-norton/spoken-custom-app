@@ -55,6 +55,7 @@ Get all playlists for a network (done)
   > Sort by last modified date (done, automatic)
 Get clips by playlist (done)
   > Create type for clips (done)
+   commit before import v0
 
 Create array of clip objects for 3 most recent playlists
   > Sort by ModifiedAtUtc latest - earliest
