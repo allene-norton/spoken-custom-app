@@ -57,18 +57,17 @@ Get clips by playlist (done)
   > Create type for clips (done)
    commit before import v0
 
+Render 10 latest clips for network on home page (done)
+  > Status icon, image, name, publish date (done)
+  > Color by status (done)
+
+Render program images as tiles (done)
+
 Create array of clip objects for 3 most recent playlists
   > Sort by ModifiedAtUtc latest - earliest
 
-Render 10 latest clips for network on home page (clickable)
-  > Status icon, image, name, publish date 
-  > Color by status
-
-Render program images as clickable tiles
-
 Clip >
   Render clip image, title, description, status, publish date
-
 
 Program > 
   Render playlists on the left
