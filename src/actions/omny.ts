@@ -1,4 +1,4 @@
-import { Network, Clips, Clip } from '@/app/types';
+import { Network, Clips, Clip, Download } from '@/app/types';
 
 const omnyKey = process.env.OMNY_API_KEY;
 
@@ -35,7 +35,7 @@ export async function getPlaylistsByNetwork(networkId?: string | undefined) {
     options,
   );
   const playlists = await response.json();
-  return playlists.Items
+  return playlists.Items;
 }
 
 export async function getClipsByPlaylist(playlistId?: string | undefined) {
@@ -44,6 +44,22 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
     options,
   );
   const clips = await response.json();
-  const recentClips = clips.Items.slice(0, 10).map((item: {Clip: Clip}) => item.Clip);
-  return recentClips
+  const recentClips = clips.Items.slice(0, 10).map(
+    (item: { Clip: Clip }) => item.Clip,
+  );
+  return recentClips;
+}
+
+export async function getNetworkDownloadsByTimeGrouping(
+  networkId?: string | undefined,
+  startDate?: string | undefined,
+  endDate?: string | undefined,
+  interval?: string | undefined,
+) {
+  const response = await fetch(
+    `${OMNY_BASE_URI}/networks/${networkId}/analytics/downloads?${startDate}&${endDate}&${interval}`,
+    options,
+  );
+  const downloads = await response.json()
+  return downloads
 }

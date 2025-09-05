@@ -194,9 +194,7 @@ export interface Clip {
   ModifiedById: string;
 }
 
-export type Clips = Clip[]
-
-
+export type Clips = Clip[];
 
 export type EpisodeType = 'Full' | 'Trailer' | 'Bonus';
 export type PublishState = 'Published' | 'Draft' | 'Scheduled' | 'Unpublished';
@@ -204,3 +202,9 @@ export type Visibility = 'Public' | 'Private' | 'Unlisted';
 export type ClipState = 'Ready' | 'Processing' | 'Error';
 export type ContentRating = 'Clean' | 'Explicit';
 export type TranscriptStatus = 'None' | 'Processing' | 'Complete' | 'Error';
+
+export type Download = {
+  downloads: number;
+  from: string;
+  to: string;
+};
