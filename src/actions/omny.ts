@@ -1,10 +1,10 @@
-import { Network, Clips, Clip } from '@/app/types';
+import { Network, Clips, Clip, Download } from '@/app/types';
 
-const omnyKey = process.env.OMNY_API_KEY;
+export const omnyKey = process.env.OMNY_API_KEY;
 
-const OMNY_BASE_URI = 'https://api.omnystudio.com/v1';
+export const OMNY_BASE_URI = 'https://api.omnystudio.com/v1';
 
-const options = {
+export const options = {
   headers: {
     Authorization: `Bearer ${process.env.OMNY_API_KEY}`,
   },
@@ -35,7 +35,7 @@ export async function getPlaylistsByNetwork(networkId?: string | undefined) {
     options,
   );
   const playlists = await response.json();
-  return playlists.Items
+  return playlists.Items;
 }
 
 export async function getClipsByPlaylist(playlistId?: string | undefined) {
@@ -44,6 +44,24 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
     options,
   );
   const clips = await response.json();
-  const recentClips = clips.Items.slice(0, 10).map((item: {Clip: Clip}) => item.Clip);
-  return recentClips
+  const recentClips = clips.Items.slice(0, 10).map(
+    (item: { Clip: Clip }) => item.Clip,
+  );
+  return recentClips;
+}
+
+export async function getNetworkDownloadsByTimeGrouping(
+  networkId?: string | undefined | null,
+  startDate?: string | undefined | null,
+  endDate?: string | undefined | null,
+  interval?: string | undefined | null,
+  timezone?: string | undefined | null,
+  // params?: string | undefined
+) {
+  const response = await fetch(
+    `${OMNY_BASE_URI}/networks/${networkId}/analytics/downloads?startDate=${startDate}&endDate=${endDate}&interval=${interval}&timeZoneIanaId=${timezone}`,
+    options,
+  );
+  const downloads = await response.json()
+  return downloads
 }

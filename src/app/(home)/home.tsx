@@ -3,7 +3,7 @@ import { copilotApi } from 'copilot-node-sdk';
 import { Welcome } from '@/app/(home)/welcome';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
-import { getNetworkByName, getProgramsByNetwork, getPlaylistsByNetwork, getClipsByPlaylist } from '@/actions/omny';
+import { getNetworkByName, getProgramsByNetwork, getPlaylistsByNetwork, getClipsByPlaylist, getNetworkDownloadsByTimeGrouping } from '@/actions/omny';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -22,13 +22,14 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
   const listCompanies = await copilot.listCompanies({name: "Nearly Media"})
-  console.log({ workspace, session });
+  // console.log({ workspace, session });
   const company = listCompanies.data?.[0]
 
   // Omny API
 
   const network = await getNetworkByName(company?.name)
   // console.log(network)
+
   const programs = await getProgramsByNetwork(network?.Id)
   // console.log(programs)
 
@@ -39,12 +40,12 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   // console.log(recentPlaylists)
 
   const recentClips = await getClipsByPlaylist(recentPlaylists?.Id)
-  console.log(recentClips)
+  // console.log(recentClips)
 
   return (
     // <Container>
     <>
-      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} playlists={playlists} recentClips={recentClips}/>
+      <Welcome portalUrl={workspace.portalUrl} company={company} programs={programs} playlists={playlists} recentClips={recentClips} network={network} />
     {/* </Container> */}
     </>
   );
