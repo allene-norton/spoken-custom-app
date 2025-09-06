@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import type { Network, Download, DownloadsResponse } from '@/app/types';
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -159,13 +159,20 @@ export default function Analytics({ network }: AnalyticsProps) {
 
         {!loading && !error && data.length > 0 && (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="Downloads" fill="hsl(var(--primary))" />
-            </BarChart>
+              <Line
+                type="monotone"
+                dataKey="Downloads"
+                stroke="#3b82f6"
+                strokeWidth={3}
+                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
           </ResponsiveContainer>
         )}
 
