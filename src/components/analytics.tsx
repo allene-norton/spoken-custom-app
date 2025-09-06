@@ -48,7 +48,6 @@ export default function Analytics({ network }: AnalyticsProps) {
   const [data, setData] = useState<Download[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
 
 
   // Set default dates (last 7 days)
@@ -101,9 +100,7 @@ export default function Analytics({ network }: AnalyticsProps) {
     period: new Date(item.From).toLocaleDateString(),
   }))
 
-  const filteredTimezones = timezones.filter(tz => 
-  tz.toLowerCase().includes(searchTerm.toLowerCase())
-)
+ 
 
   return (
     <div className="w-full mb-8">
