@@ -7,23 +7,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+
 interface AnalyticsProps {
   network: Network
 }
 
 const timezones = [
   "UTC",
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Australia/Sydney",
-]
+  // US Timezones
+  "America/New_York",      // Eastern
+  "America/Chicago",       // Central  
+  "America/Denver",        // Mountain
+  "America/Los_Angeles",   // Pacific
+  "America/Anchorage",     // Alaska
+  "Pacific/Honolulu",      // Hawaii
+  // Major International (US to Australia route)
+  "Europe/London",         // GMT/BST
+  "Europe/Berlin",         // Central Europe
+  "Asia/Dubai",            // Middle East hub
+  "Asia/Mumbai",           // India
+  "Asia/Singapore",        // Southeast Asia hub
+  "Asia/Tokyo",            // Japan
+  "Asia/Shanghai",         // China
+  "Asia/Seoul",            // South Korea
+  // Australian Timezones
+  "Australia/Perth",       // Western Australia
+  "Australia/Adelaide",    // Central Australia  
+  "Australia/Darwin",      // Northern Territory
+  "Australia/Sydney",      // Eastern Australia (NSW/VIC/TAS)
+  "Australia/Brisbane",    // Queensland (no DST)
+];
+
+
 
 export default function Analytics({ network }: AnalyticsProps) {
   const [startDate, setStartDate] = useState("")
@@ -33,6 +48,8 @@ export default function Analytics({ network }: AnalyticsProps) {
   const [data, setData] = useState<Download[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+
 
   // Set default dates (last 7 days)
   useEffect(() => {
@@ -83,6 +100,10 @@ export default function Analytics({ network }: AnalyticsProps) {
     ...item,
     period: new Date(item.From).toLocaleDateString(),
   }))
+
+  const filteredTimezones = timezones.filter(tz => 
+  tz.toLowerCase().includes(searchTerm.toLowerCase())
+)
 
   return (
     <div className="w-full mb-8">
@@ -186,3 +207,4 @@ export default function Analytics({ network }: AnalyticsProps) {
     </div>
   )
 }
+
