@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   // console.log(`PARAMS: ${searchParams}`)
 
   const analyticsData = await getNetworkDownloadsByTimeGrouping(networkId,startDate,endDate,interval, timezone)
-  console.log(analyticsData)
+  // console.log(analyticsData)
 
   // Mock data for demonstration - replace with actual API call
   const mockData = {
