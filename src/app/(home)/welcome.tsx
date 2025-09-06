@@ -5,6 +5,7 @@ import { Body, Heading, Icon } from 'copilot-design-system';
 import { Company, Programs, Playlists, Clips, Network } from '@/app/types';
 import ProgramCard from '@/components/program-card';
 import ClipItem from '@/components/clip-item';
+import Analytics from '@/components/analytics';
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -45,6 +46,9 @@ export async function Welcome({
               {company?.name}
             </h1>
           </header>
+
+          {network && <Analytics network={network} />}
+
           {/* Main Content */}
           <div className="flex-1 flex gap-8 min-h-0">
             {/* Left Column: Programs */}

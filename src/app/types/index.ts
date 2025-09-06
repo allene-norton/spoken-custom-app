@@ -203,8 +203,12 @@ export type ClipState = 'Ready' | 'Processing' | 'Error';
 export type ContentRating = 'Clean' | 'Explicit';
 export type TranscriptStatus = 'None' | 'Processing' | 'Complete' | 'Error';
 
-export type Download = {
-  downloads: number;
-  from: string;
-  to: string;
+export interface Download {
+  Downloads: number;
+  From: string;
+  To: string;
 };
+
+export interface DownloadsResponse {
+  Items: Download[]
+}
