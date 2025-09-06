@@ -2,7 +2,7 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company, Programs, Playlists, Clips } from '@/app/types';
+import { Company, Programs, Playlists, Clips, Network } from '@/app/types';
 import ProgramCard from '@/components/program-card';
 import ClipItem from '@/components/clip-item';
 
@@ -18,12 +18,14 @@ export async function Welcome({
   programs,
   playlists,
   recentClips,
+  network
 }: {
   portalUrl?: string;
   company?: Company;
   programs?: Programs;
   playlists?: Playlists;
   recentClips?: Clips;
+  network?: Network
 }) {
   useBreadcrumbs(
     [
