@@ -25,75 +25,27 @@ interface AnalyticsProps {
   network: Network;
 }
 
-const timezones = [
-  'UTC',
-  // US Timezones
-  'America/New_York', // Eastern
-  'America/Chicago', // Central
-  'America/Denver', // Mountain
-  'America/Los_Angeles', // Pacific
-  'America/Anchorage', // Alaska
-  'Pacific/Honolulu', // Hawaii
-  // Major International (US to Australia route)
-  'Europe/London', // GMT/BST
-  'Europe/Berlin', // Central Europe
-  'Asia/Dubai', // Middle East hub
-  'Asia/Kolkata', // India
-  'Asia/Singapore', // Southeast Asia hub
-  'Asia/Tokyo', // Japan
-  'Asia/Shanghai', // China
-  'Asia/Seoul', // South Korea
-  // Australian Timezones
-  'Australia/Perth', // Western Australia
-  'Australia/Adelaide', // Central Australia
-  'Australia/Darwin', // Northern Territory
-  'Australia/Sydney', // Eastern Australia (NSW/VIC/TAS)
-  'Australia/Brisbane', // Queensland (no DST)
-];
-
 export default function Analytics({ network }: AnalyticsProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [interval, setInterval] = useState('Daily');
-  const [timezone, setTimezone] = useState('UTC');
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Always local
   const [data, setData] = useState<Download[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Set default dates (last 7 days)
+  // Set default dates (last 7 days) in user's local timezone
   useEffect(() => {
     const end = new Date();
     const start = new Date();
     start.setDate(start.getDate() - 7);
 
-    setEndDate(end.toISOString());
-    setStartDate(start.toISOString());
+    end.setHours(23, 59, 59, 999);
+    start.setHours(0, 0, 0, 0);
+
+    setEndDate(end.toISOString().slice(0, -1));
+    setStartDate(start.toISOString().slice(0, -1));
   }, []);
-
-  // Update the timezone change handler
-  const handleTimezoneChange = (newTimezone: string) => {
-    setTimezone(newTimezone);
-
-    // Convert existing dates to remove/add Z suffix based on timezone
-    if (newTimezone === 'UTC') {
-      // Add Z if not present
-      if (!startDate.endsWith('Z')) {
-        setStartDate(startDate + 'Z');
-      }
-      if (!endDate.endsWith('Z')) {
-        setEndDate(endDate + 'Z');
-      }
-    } else {
-      // Remove Z if present
-      if (startDate.endsWith('Z')) {
-        setStartDate(startDate.slice(0, -1));
-      }
-      if (endDate.endsWith('Z')) {
-        setEndDate(endDate.slice(0, -1));
-      }
-    }
-  };
-
   const fetchData = async () => {
     if (!startDate || !endDate) return;
 
@@ -147,9 +99,7 @@ export default function Analytics({ network }: AnalyticsProps) {
             type="date"
             value={startDate.split('T')[0]}
             onChange={(e) => {
-              const timeString =
-                timezone === 'UTC' ? 'T00:00:00.000Z' : 'T00:00:00.000';
-              setStartDate(e.target.value + timeString);
+              setStartDate(e.target.value + 'T00:00:00.000');
             }}
             className="w-auto"
           />
@@ -162,9 +112,7 @@ export default function Analytics({ network }: AnalyticsProps) {
             type="date"
             value={endDate.split('T')[0]}
             onChange={(e) => {
-              const timeString =
-                timezone === 'UTC' ? 'T23:59:59.999Z' : 'T23:59:59.999';
-              setEndDate(e.target.value + timeString);
+              setEndDate(e.target.value + 'T23:59:59.999');
             }}
             className="w-auto"
           />
@@ -184,24 +132,7 @@ export default function Analytics({ network }: AnalyticsProps) {
             </SelectContent>
           </Select>
         </div>
-
-        <div className="flex gap-2 items-center">
-          <Label>Timezone:</Label>
-          <Select value={timezone} onValueChange={handleTimezoneChange}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {timezones.map((tz) => (
-                <SelectItem key={tz} value={tz}>
-                  {tz}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
-
       {/* Summary */}
       <div className="mb-4">
         <p className="text-lg text-foreground">
@@ -240,9 +171,7 @@ export default function Analytics({ network }: AnalyticsProps) {
 
         {!loading && !error && data.length === 0 && (
           <div className="h-64 flex items-center justify-center">
-            <p className="text-muted-foreground">
-              No data available for the selected period
-            </p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         )}
       </div>
