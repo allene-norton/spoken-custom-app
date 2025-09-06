@@ -22,7 +22,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
   const listCompanies = await copilot.listCompanies({name: "Nearly Media"})
-  console.log({ workspace, session });
+  // console.log({ workspace, session });
   const company = listCompanies.data?.[0]
 
   // Omny API

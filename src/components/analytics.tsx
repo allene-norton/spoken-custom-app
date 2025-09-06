@@ -1,70 +1,104 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import type { Network, Download, DownloadsResponse } from "@/app/types"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-
+import { useState, useEffect } from 'react';
+import type { Network, Download, DownloadsResponse } from '@/app/types';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface AnalyticsProps {
-  network: Network
+  network: Network;
 }
 
 const timezones = [
-  "UTC",
+  'UTC',
   // US Timezones
-  "America/New_York",      // Eastern
-  "America/Chicago",       // Central  
-  "America/Denver",        // Mountain
-  "America/Los_Angeles",   // Pacific
-  "America/Anchorage",     // Alaska
-  "Pacific/Honolulu",      // Hawaii
+  'America/New_York', // Eastern
+  'America/Chicago', // Central
+  'America/Denver', // Mountain
+  'America/Los_Angeles', // Pacific
+  'America/Anchorage', // Alaska
+  'Pacific/Honolulu', // Hawaii
   // Major International (US to Australia route)
-  "Europe/London",         // GMT/BST
-  "Europe/Berlin",         // Central Europe
-  "Asia/Dubai",            // Middle East hub
-  "Asia/Mumbai",           // India
-  "Asia/Singapore",        // Southeast Asia hub
-  "Asia/Tokyo",            // Japan
-  "Asia/Shanghai",         // China
-  "Asia/Seoul",            // South Korea
+  'Europe/London', // GMT/BST
+  'Europe/Berlin', // Central Europe
+  'Asia/Dubai', // Middle East hub
+  'Asia/Kolkata', // India
+  'Asia/Singapore', // Southeast Asia hub
+  'Asia/Tokyo', // Japan
+  'Asia/Shanghai', // China
+  'Asia/Seoul', // South Korea
   // Australian Timezones
-  "Australia/Perth",       // Western Australia
-  "Australia/Adelaide",    // Central Australia  
-  "Australia/Darwin",      // Northern Territory
-  "Australia/Sydney",      // Eastern Australia (NSW/VIC/TAS)
-  "Australia/Brisbane",    // Queensland (no DST)
+  'Australia/Perth', // Western Australia
+  'Australia/Adelaide', // Central Australia
+  'Australia/Darwin', // Northern Territory
+  'Australia/Sydney', // Eastern Australia (NSW/VIC/TAS)
+  'Australia/Brisbane', // Queensland (no DST)
 ];
 
-
-
 export default function Analytics({ network }: AnalyticsProps) {
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [interval, setInterval] = useState("Daily")
-  const [timezone, setTimezone] = useState("UTC")
-  const [data, setData] = useState<Download[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [interval, setInterval] = useState('Daily');
+  const [timezone, setTimezone] = useState('UTC');
+  const [data, setData] = useState<Download[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Set default dates (last 7 days)
   useEffect(() => {
-    const end = new Date()
-    const start = new Date()
-    start.setDate(start.getDate() - 7)
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
 
-    setEndDate(end.toISOString().split("T")[0])
-    setStartDate(start.toISOString().split("T")[0])
-  }, [])
+    setEndDate(end.toISOString());
+    setStartDate(start.toISOString());
+  }, []);
+
+  // Update the timezone change handler
+  const handleTimezoneChange = (newTimezone: string) => {
+    setTimezone(newTimezone);
+
+    // Convert existing dates to remove/add Z suffix based on timezone
+    if (newTimezone === 'UTC') {
+      // Add Z if not present
+      if (!startDate.endsWith('Z')) {
+        setStartDate(startDate + 'Z');
+      }
+      if (!endDate.endsWith('Z')) {
+        setEndDate(endDate + 'Z');
+      }
+    } else {
+      // Remove Z if present
+      if (startDate.endsWith('Z')) {
+        setStartDate(startDate.slice(0, -1));
+      }
+      if (endDate.endsWith('Z')) {
+        setEndDate(endDate.slice(0, -1));
+      }
+    }
+  };
 
   const fetchData = async () => {
-    if (!startDate || !endDate) return
+    if (!startDate || !endDate) return;
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
       const params = new URLSearchParams({
@@ -73,34 +107,32 @@ export default function Analytics({ network }: AnalyticsProps) {
         interval,
         timezone,
         networkId: network.Id,
-      })
+      });
 
-      const response = await fetch(`/api/downloads?${params}`)
-      if (!response.ok) throw new Error("Failed to fetch data")
+      const response = await fetch(`/api/downloads?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch data');
 
-      const result: DownloadsResponse = await response.json()
-      setData(result.Items)
+      const result: DownloadsResponse = await response.json();
+      setData(result.Items);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (startDate && endDate) {
-      fetchData()
+      fetchData();
     }
-  }, [startDate, endDate, interval, timezone, network.Id])
+  }, [startDate, endDate, interval, timezone, network.Id]);
 
-  const totalDownloads = data.reduce((sum, item) => sum + item.Downloads, 0)
+  const totalDownloads = data.reduce((sum, item) => sum + item.Downloads, 0);
 
   const chartData = data.map((item) => ({
     ...item,
     period: new Date(item.From).toLocaleDateString(),
-  }))
-
- 
+  }));
 
   return (
     <div className="w-full mb-8">
@@ -113,8 +145,12 @@ export default function Analytics({ network }: AnalyticsProps) {
           <Input
             id="start-date"
             type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            value={startDate.split('T')[0]}
+            onChange={(e) => {
+              const timeString =
+                timezone === 'UTC' ? 'T00:00:00.000Z' : 'T00:00:00.000';
+              setStartDate(e.target.value + timeString);
+            }}
             className="w-auto"
           />
         </div>
@@ -124,8 +160,12 @@ export default function Analytics({ network }: AnalyticsProps) {
           <Input
             id="end-date"
             type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            value={endDate.split('T')[0]}
+            onChange={(e) => {
+              const timeString =
+                timezone === 'UTC' ? 'T23:59:59.999Z' : 'T23:59:59.999';
+              setEndDate(e.target.value + timeString);
+            }}
             className="w-auto"
           />
         </div>
@@ -147,7 +187,7 @@ export default function Analytics({ network }: AnalyticsProps) {
 
         <div className="flex gap-2 items-center">
           <Label>Timezone:</Label>
-          <Select value={timezone} onValueChange={setTimezone}>
+          <Select value={timezone} onValueChange={handleTimezoneChange}>
             <SelectTrigger className="w-48">
               <SelectValue />
             </SelectTrigger>
@@ -165,7 +205,10 @@ export default function Analytics({ network }: AnalyticsProps) {
       {/* Summary */}
       <div className="mb-4">
         <p className="text-lg text-foreground">
-          Total clip downloads during period: <span className="font-semibold">{totalDownloads.toLocaleString()}</span>
+          Total clip downloads during period:{' '}
+          <span className="font-semibold">
+            {totalDownloads.toLocaleString()}
+          </span>
         </p>
       </div>
 
@@ -197,11 +240,12 @@ export default function Analytics({ network }: AnalyticsProps) {
 
         {!loading && !error && data.length === 0 && (
           <div className="h-64 flex items-center justify-center">
-            <p className="text-muted-foreground">No data available for the selected period</p>
+            <p className="text-muted-foreground">
+              No data available for the selected period
+            </p>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { getNetworkDownloadsByTimeGrouping } from "@/actions/omny"
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -7,6 +8,12 @@ export async function GET(request: NextRequest) {
   const interval = searchParams.get("interval")
   const timezone = searchParams.get("timezone")
   const networkId = searchParams.get("networkId")
+  const stringParams = searchParams.toString()
+
+  // console.log(`PARAMS: ${searchParams}`)
+
+  const analyticsData = await getNetworkDownloadsByTimeGrouping(networkId,startDate,endDate,interval, timezone)
+  console.log(analyticsData)
 
   // Mock data for demonstration - replace with actual API call
   const mockData = {
@@ -39,5 +46,5 @@ export async function GET(request: NextRequest) {
     ],
   }
 
-  return NextResponse.json(mockData)
+  return NextResponse.json(analyticsData)
 }

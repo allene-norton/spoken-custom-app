@@ -51,13 +51,15 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
 }
 
 export async function getNetworkDownloadsByTimeGrouping(
-  networkId?: string | undefined,
-  startDate?: string | undefined,
-  endDate?: string | undefined,
-  interval?: string | undefined,
+  networkId?: string | undefined | null,
+  startDate?: string | undefined | null,
+  endDate?: string | undefined | null,
+  interval?: string | undefined | null,
+  timezone?: string | undefined | null,
+  // params?: string | undefined
 ) {
   const response = await fetch(
-    `${OMNY_BASE_URI}/networks/${networkId}/analytics/downloads?${startDate}&${endDate}&${interval}`,
+    `${OMNY_BASE_URI}/networks/${networkId}/analytics/downloads?startDate=${startDate}&endDate=${endDate}&interval=${interval}&timeZoneIanaId=${timezone}`,
     options,
   );
   const downloads = await response.json()
