@@ -1,10 +1,10 @@
 import { Network, Clips, Clip, Download } from '@/app/types';
 
-const omnyKey = process.env.OMNY_API_KEY;
+export const omnyKey = process.env.OMNY_API_KEY;
 
-const OMNY_BASE_URI = 'https://api.omnystudio.com/v1';
+export const OMNY_BASE_URI = 'https://api.omnystudio.com/v1';
 
-const options = {
+export const options = {
   headers: {
     Authorization: `Bearer ${process.env.OMNY_API_KEY}`,
   },
