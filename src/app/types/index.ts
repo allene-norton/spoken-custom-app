@@ -26,7 +26,9 @@ export type Network = {
   CreatedById: string;
   ModifiedAtUtc: string;
   ModifiedById: string;
-};
+} | undefined;
+
+export type Networks = Network[] | undefined
 
 export interface Program {
   Name: string;
@@ -126,7 +128,7 @@ export interface Playlist {
   ModifiedById: string;
 }
 
-export type Playlists = Playlist[];
+export type Playlists = Playlist[] | undefined;
 
 export interface Clip {
   Title: string;
@@ -194,7 +196,7 @@ export interface Clip {
   ModifiedById: string;
 }
 
-export type Clips = Clip[];
+export type Clips = Clip[] | undefined;
 
 export type EpisodeType = 'Full' | 'Trailer' | 'Bonus';
 export type PublishState = 'Published' | 'Draft' | 'Scheduled' | 'Unpublished';
