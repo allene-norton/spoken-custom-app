@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Check, Edit3, CalendarOff } from 'lucide-react';
+import {
+  Clock,
+  Check,
+  Edit3,
+  CalendarOff,
+  RefreshCcwDot,
+  CircleCheck,
+  OctagonX,
+  TriangleAlert,
+  MegaphoneOff,
+  CornerRightUp,
+  CircleDashed,
+} from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import {
   Clip,
   PublishState,
   EpisodeType,
   Visibility,
   ContentRating,
+  ClipProcessingState,
 } from '@/app/types';
 
 const StatusIcon = ({ status }: { status: PublishState }) => {
@@ -22,6 +40,29 @@ const StatusIcon = ({ status }: { status: PublishState }) => {
   }
 };
 
+const ProcessingIcon = ({
+  processingState,
+}: {
+  processingState: ClipProcessingState;
+}) => {
+  switch (processingState) {
+    case 'Ready':
+      return <CircleCheck className="w-4 h-4" />;
+    case 'Processing':
+      return <RefreshCcwDot className="w-4 h-4" />;
+    case 'Error':
+      return <OctagonX className="w-4 h-4" />;
+    case 'Warning':
+      return <TriangleAlert className="w-4 h-4" />;
+    case 'Draft':
+      return <CircleDashed className="w-4 h-4" />;
+    case 'AudioUploaded':
+      return <CornerRightUp className="w-4 h-4" />;
+    case 'None':
+      return <MegaphoneOff className="w-4 h-4" />;
+  }
+};
+
 const getStatusColor = (status: PublishState) => {
   switch (status) {
     case 'Published':
@@ -30,6 +71,25 @@ const getStatusColor = (status: PublishState) => {
       return 'bg-[var(--status-scheduled)] text-white';
     case 'Draft':
       return 'bg-[var(--status-draft)] text-white';
+  }
+};
+
+const getProcessingColor = (processingState: ClipProcessingState) => {
+  switch (processingState) {
+    case 'Ready':
+      return '#107517';
+    case 'Processing':
+      return '#107517';
+    case 'Error':
+      return '#107517';
+    case 'Warning':
+      return '#107517';
+    case 'Draft':
+      return '#107517';
+    case 'AudioUploaded':
+      return '#107517';
+    case 'None':
+      return '#107517';
   }
 };
 
@@ -101,15 +161,37 @@ export default function ClipItem({ clip }: ClipItemProps) {
               {clip.Title}
             </h3>
 
-            <p className="text-xs sm:text-sm text-muted-foreground sm:ml-3 flex-shrink-0">
-              {clip.PublishState === 'Unpublished'
-                ? 'No date available'
-                : new Date(clip.PublishedUtc).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-            </p>
+            <div className="flex items-center gap-2 sm:ml-3 flex-shrink-0">
+              {/* Processing State Icon with HoverCard */}
+              <HoverCard openDelay={100} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <div
+                    className="flex items-center cursor-default"
+                    style={{
+                      color: getProcessingColor(
+                        clip.State as ClipProcessingState,
+                      ),
+                    }}
+                  >
+                    <ProcessingIcon
+                      processingState={clip.State as ClipProcessingState}
+                    />
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-auto p-2">
+                  <p className="text-sm font-medium">{clip.State}</p>
+                </HoverCardContent>
+              </HoverCard>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {clip.PublishState === 'Unpublished'
+                  ? 'No date available'
+                  : new Date(clip.PublishedUtc).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+              </p>
+            </div>
           </div>
         </div>
       </div>
