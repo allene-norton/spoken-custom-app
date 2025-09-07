@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
-// import PlaylistCard from "./playlist-card"
+import PlaylistCard from "@/components/playlist-card"
 // import ProgramAnalytics from "./program-analytics"
 import ClipItem from "./clip-item"
 import type { Program, Playlist, Playlists, Clips, Clip, Network } from "@/app/types"
@@ -51,18 +51,18 @@ export default function ProgramDetail({ program, playlists, programClips, networ
             </div>
 
             {/* Playlists Section */}
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Playlists</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {playlists.map((playlist) => (
-                    <PlaylistCard key={playlist.id} playlist={playlist} />
+                  {playlists?.map((playlist) => (
+                    <PlaylistCard key={playlist.Id} playlist={playlist} />
                   ))}
                 </div>
               </CardContent>
-            </Card> */}
+            </Card>
 
             {/* Program Analytics */}
             {/* <ProgramAnalytics network={network} programId={program.id} /> */}
