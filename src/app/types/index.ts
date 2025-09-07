@@ -199,7 +199,7 @@ export type Clips = Clip[];
 export type EpisodeType = 'Full' | 'Trailer' | 'Bonus';
 export type PublishState = 'Published' | 'Draft' | 'Scheduled' | 'Unpublished';
 export type Visibility = 'Public' | 'Private' | 'Unlisted';
-export type ClipState = 'Ready' | 'Processing' | 'Error';
+export type ClipProcessingState = 'Ready' | 'Processing' | 'Error' | 'Draft' | 'Warning' | 'AudioUploaded' | 'None';
 export type ContentRating = 'Clean' | 'Explicit';
 export type TranscriptStatus = 'None' | 'Processing' | 'Complete' | 'Error';
 

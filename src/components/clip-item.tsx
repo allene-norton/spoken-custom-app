@@ -3,8 +3,6 @@ import { Clock, Check, Edit3, CalendarOff } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import {
   Clip,
-  Clips,
-  ClipState,
   PublishState,
   EpisodeType,
   Visibility,
