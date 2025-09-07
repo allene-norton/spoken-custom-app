@@ -69,7 +69,7 @@ export async function getNetworkDownloadsByTimeGrouping(
 // get playlists by program
 // https://api.omnystudio.com/v1/programs/{programId}/playlists
 
-export async function getPlaylistsByProgram(programId?: string | undefined) {
+export async function getPlaylistsByProgram(programId?: string | undefined | null) {
   const response = await fetch(
     `${OMNY_BASE_URI}/programs/${programId}/playlists`,
     options,
