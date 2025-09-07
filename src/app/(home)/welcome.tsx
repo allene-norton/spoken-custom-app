@@ -2,10 +2,13 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company, Programs, Playlists, Clips, Network } from '@/app/types';
+import { Company, Programs, Playlists, Clips, Network, Program } from '@/app/types';
 import ProgramCard from '@/components/program-card';
 import ClipItem from '@/components/clip-item';
 import Analytics from '@/components/analytics';
+import { useState } from "react"
+import ProgramDetail from '@/components/program-detail';
+
 
 /**
  * The revalidate property determine's the cache TTL for this page and
@@ -13,20 +16,22 @@ import Analytics from '@/components/analytics';
  */
 export const revalidate = 180;
 
-export async function Welcome({
+export function Welcome({
   portalUrl,
   company,
   programs,
   playlists,
   recentClips,
-  network
+  network,
+  programClips
 }: {
   portalUrl?: string;
   company?: Company;
   programs?: Programs;
   playlists?: Playlists;
   recentClips?: Clips;
-  network?: Network
+  network?: Network;
+  programClips?: Clips
 }) {
   useBreadcrumbs(
     [
@@ -36,6 +41,28 @@ export async function Welcome({
     ],
     { portalUrl },
   );
+
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
+
+  const handleProgramClick = (program: Program) => {
+    setSelectedProgram(program)
+  }
+
+  const handleBackClick = () => {
+    setSelectedProgram(null)
+  }
+
+  if (selectedProgram) {
+    return (
+      <ProgramDetail
+        program={selectedProgram}
+        playlists={playlists}
+        programClips={programClips}
+        network={network}
+        onBack={handleBackClick}
+      />
+    )
+  }
 
   return (
     <>
@@ -60,7 +87,7 @@ export async function Welcome({
               <div className="flex-1 overflow-y-auto">
                 <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {programs?.slice(0, 12).map((program) => (
-                    <ProgramCard key={program.Id} program={program} />
+                    <ProgramCard key={program.Id} program={program} onClick={handleProgramClick}/>
                   ))}
                 </div>
               </div>

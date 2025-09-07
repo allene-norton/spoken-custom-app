@@ -11,7 +11,7 @@ import type { Program, Playlist, Playlists, Clips, Clip, Network } from "@/app/t
 interface ProgramDetailProps {
   program: Program
   playlists: Playlists
-  clips?: Clips
+  programClips?: Clips
   network: Network
   onBack: () => void
 }
