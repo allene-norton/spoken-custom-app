@@ -1,0 +1,92 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowLeft } from "lucide-react"
+// import PlaylistCard from "./playlist-card"
+// import ProgramAnalytics from "./program-analytics"
+import ClipItem from "./clip-item"
+import type { Program, Playlist, Playlists, Clips, Clip, Network } from "@/app/types"
+
+interface ProgramDetailProps {
+  program: Program
+  playlists: Playlists
+  clips?: Clips
+  network: Network
+  onBack: () => void
+}
+
+export default function ProgramDetail({ program, playlists, clips, network, onBack }: ProgramDetailProps) {
+  return (
+    <div className="h-screen bg-background p-6 flex flex-col">
+      <div className="max-w-7xl mx-auto flex-1 flex flex-col">
+        {/* Header */}
+        <header className="mb-4 flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={onBack} className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+          <h1 className="text-3xl font-bold text-foreground text-balance">{program.Name}</h1>
+        </header>
+
+        {/* Main Content */}
+        <div className="flex-1 flex gap-8 min-h-0">
+          {/* Left Column: Program Details */}
+          <div className="flex-1 flex flex-col gap-6">
+            {/* Program Artwork */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-6">
+                  <div className="w-32 h-32 flex-shrink-0">
+                    <img
+                      src={
+                        program.Urls.ImagePublicUrl ||
+                        `/placeholder.svg?height=128&width=128&query=${encodeURIComponent(program.Name + " podcast cover") || "/placeholder.svg"}`
+                      }
+                      alt={`${program.Name} cover`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{program.Name}</h2>
+                    <p className="text-muted-foreground">{program.Description || "No description available"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Playlists Section */}
+            {/* <Card>
+              <CardHeader>
+                <CardTitle>Playlists</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {playlists.map((playlist) => (
+                    <PlaylistCard key={playlist.id} playlist={playlist} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card> */}
+
+            {/* Program Analytics */}
+            {/* <ProgramAnalytics network={network} programId={program.id} /> */}
+          </div>
+
+          {/* Right Column: Latest Clips */}
+          <div className="flex-1 flex flex-col">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Latest Clips</h2>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-2">
+                {clips?.slice(0, 10).map((clip) => (
+                  <ClipItem key={clip.Id} clip={clip} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
