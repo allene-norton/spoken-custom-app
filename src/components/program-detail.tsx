@@ -32,28 +32,23 @@ export default function ProgramDetail({ program, playlists, programClips, networ
         {/* Main Content */}
         <div className="flex-1 flex gap-8 min-h-0">
           {/* Left Column: Program Details */}
-          <div className="flex-1 flex flex-col gap-6">
+          <div className="w-1/2 flex flex-col gap-6">
             {/* Program Artwork */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-6">
-                  <div className="w-32 h-32 flex-shrink-0">
-                    <img
-                      src={
-                        program.Urls.ImagePublicUrl ||
-                        `/placeholder.svg?height=128&width=128&query=${encodeURIComponent(program.Name + " podcast cover") || "/placeholder.svg"}`
-                      }
-                      alt={`${program.Name} cover`}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-foreground mb-2">{program.Name}</h2>
-                    <p className="text-muted-foreground">{program.Description || "No description available"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-48 h-48">
+                <img
+                  src={
+                    program.Urls.ImagePublicUrl ||
+                    `/placeholder.svg?height=192&width=192&query=${encodeURIComponent(program.Name + " podcast cover") || "/placeholder.svg"}`
+                  }
+                  alt={`${program.Name} cover`}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+              <p className="text-muted-foreground text-center w-full">
+                {program.Description || "No description available"}
+              </p>
+            </div>
 
             {/* Playlists Section */}
             {/* <Card>
