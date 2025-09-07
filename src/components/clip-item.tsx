@@ -85,11 +85,11 @@ const getProcessingColor = (processingState: ClipProcessingState) => {
     case 'Warning':
       return '#E8B900';
     case 'Draft':
-      return '#545454';
+      return '#3B3B3B';
     case 'AudioUploaded':
       return '#0093E8';
     case 'None':
-      return '#545454';
+      return '#3B3B3B';
   }
 };
 
