@@ -16,7 +16,7 @@ interface ProgramDetailProps {
   onBack: () => void
 }
 
-export default function ProgramDetail({ program, playlists, clips, network, onBack }: ProgramDetailProps) {
+export default function ProgramDetail({ program, playlists, programClips, network, onBack }: ProgramDetailProps) {
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
       <div className="max-w-7xl mx-auto flex-1 flex flex-col">
@@ -79,7 +79,7 @@ export default function ProgramDetail({ program, playlists, clips, network, onBa
 
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-2">
-                {clips?.slice(0, 10).map((clip) => (
+                {programClips?.slice(0, 10).map((clip) => (
                   <ClipItem key={clip.Id} clip={clip} />
                 ))}
               </div>
