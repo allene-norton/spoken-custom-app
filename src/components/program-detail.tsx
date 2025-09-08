@@ -6,7 +6,14 @@ import { ArrowLeft } from 'lucide-react';
 import PlaylistCard from '@/components/playlist-card';
 // import ProgramAnalytics from "./program-analytics"
 import ClipItem from './clip-item';
-import type { Program, Playlists, Clips, Clip, Network } from '@/app/types';
+import type {
+  Program,
+  Playlists,
+  Clips,
+  Clip,
+  Network,
+  Playlist,
+} from '@/app/types';
 import { useState, useEffect } from 'react';
 
 interface ProgramDetailProps {
@@ -31,6 +38,22 @@ export default function ProgramDetail({
   const filteredClips = clips?.filter((clip) =>
     selectedPlaylistId ? clip.PlaylistIds.includes(selectedPlaylistId) : false,
   );
+
+  const handlePlaylistClick = async (playlist: Playlist) => {
+    setSelectedPlaylistId(playlist.Id);
+
+    if (playlist.Id) {
+      try {
+        const response = await fetch(
+          `/api/playlists?playlistId=${encodeURIComponent(playlist.Id)}`,
+        );
+        const clips = await response.json();
+        setClips(clips);
+      } catch (error) {
+        console.error('Failed to fetch clips:', error);
+      }
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -74,9 +97,9 @@ export default function ProgramDetail({
       setSelectedPlaylistId(firstPlaylistId);
 
       if (!firstPlaylistId) {
-      console.error('Playlist ID is missing');
-      return;
-    }
+        console.error('Playlist ID is missing');
+        return;
+      }
 
       const fetchClips = async () => {
         try {
@@ -84,7 +107,7 @@ export default function ProgramDetail({
             `/api/playlists?playlistId=${encodeURIComponent(firstPlaylistId)}`,
           );
           const clips = await response.json();
-          setClips(clips)
+          setClips(clips);
         } catch (error) {
           console.error('Failed to fetch clips:', error);
         }
@@ -160,6 +183,7 @@ export default function ProgramDetail({
                               playlist={playlist}
                               program={program}
                               network={network}
+                              onClick={handlePlaylistClick}
                             />
                           );
                         })}

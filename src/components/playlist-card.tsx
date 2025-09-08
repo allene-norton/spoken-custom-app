@@ -6,14 +6,15 @@ interface PlaylistCardProps {
   playlist: Playlist;
   program: Program;
   network: Network
+  onClick?: (playlist: Playlist) => void
 }
 
-export default function PlaylistCard({ playlist, program, network }: PlaylistCardProps) {
+export default function PlaylistCard({ playlist, program, network, onClick }: PlaylistCardProps) {
 
 
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow" onClick={() => onClick?.(playlist)}>
       <div className="flex items-center gap-3 p-3">
         <div className="w-12 h-12 flex-shrink-0">
           <img
