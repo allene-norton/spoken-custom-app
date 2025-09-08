@@ -3,11 +3,12 @@ import { Programs, Program } from "@/app/types"
 
 interface ProgramCardProps {
   program: Program;
+  onClick?: (program: Program) => void
 }
 
-export default function ProgramCard({ program }: ProgramCardProps) {
+export default function ProgramCard({ program, onClick }: ProgramCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onClick?.(program)}>
       <div className="aspect-square relative">
         <img
           src={

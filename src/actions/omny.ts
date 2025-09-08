@@ -14,7 +14,7 @@ export async function getNetworkByName(companyName: string | undefined) {
   const response = await fetch(`${OMNY_BASE_URI}/networks`, options);
   const networks = await response.json();
   const network: Network | undefined = networks?.Items.find(
-    (network: Network) => network.Name === companyName,
+    (network: Network) => network?.Name === companyName,
   );
 
   return network;
@@ -65,3 +65,19 @@ export async function getNetworkDownloadsByTimeGrouping(
   const downloads = await response.json()
   return downloads
 }
+
+// get playlists by program
+// https://api.omnystudio.com/v1/programs/{programId}/playlists
+
+export async function getPlaylistsByProgram(programId?: string | undefined | null) {
+  const response = await fetch(
+    `${OMNY_BASE_URI}/programs/${programId}/playlists`,
+    options,
+  );
+  const playlists = await response.json();
+  return playlists.Items;
+}
+
+// get analytics by program
+
+// get clips by program ?

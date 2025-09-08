@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface AnalyticsProps {
-  network: Network;
+  network?: Network;
 }
 
 export default function Analytics({ network }: AnalyticsProps) {
@@ -53,6 +53,9 @@ export default function Analytics({ network }: AnalyticsProps) {
     setError(null);
 
     try {
+      if (!network) {
+        throw new Error('Network not selected');
+      }
       const params = new URLSearchParams({
         startDate,
         endDate,
@@ -77,7 +80,7 @@ export default function Analytics({ network }: AnalyticsProps) {
     if (startDate && endDate) {
       fetchData();
     }
-  }, [startDate, endDate, interval, timezone, network.Id]);
+  }, [startDate, endDate, interval, timezone, network?.Id]);
 
   const totalDownloads = data.reduce((sum, item) => sum + item.Downloads, 0);
 
