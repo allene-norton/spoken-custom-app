@@ -8,8 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Save } from 'lucide-react';
-import type { Clip, PublishState } from '@/app/types';
+import type { Clip, PublishState, Visibility } from '@/app/types';
 import parse from 'html-react-parser';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { Link as TiptapLink } from '@tiptap/extension-link';
+import { RichTextEditor } from '@/components/richtexteditor';
 
 interface ClipDetailProps {
   clip: Clip;
@@ -47,6 +51,17 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
       case 'Scheduled':
         return 'bg-[var(--status-scheduled)] text-white';
       case 'Draft':
+        return 'bg-[var(--status-draft)] text-white';
+    }
+  };
+
+  const getVisibilityColor = (visibility: Visibility) => {
+    switch (visibility) {
+      case 'Public':
+        return 'bg-[var(--status-published)] text-white';
+      case 'Private':
+        return 'bg-[var(--status-scheduled)] text-white';
+      case 'Unlisted':
         return 'bg-[var(--status-draft)] text-white';
     }
   };
@@ -106,136 +121,119 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
           </Button>
         </header>
 
-        {/* Main Content */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
-          {/* Left Column: Clip Info & Editing */}
-          <div className="flex flex-col gap-6 overflow-y-auto">
-            {/* Clip Image */}
-            <div className="flex justify-center">
-              <img
-                src={
-                  clip.Urls?.ImagePublicUrl ||
-                  `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(clip.Title + ' clip artwork') || '/placeholder.svg'}`
-                }
-                alt={`${clip.Title} artwork`}
-                className="w-48 h-48 object-cover rounded-lg shadow-md"
-              />
+        {/* Clip Overview Card */}
+        <div className="mb-6 bg-card border rounded-lg p-4">
+          <div className="flex items-center justify-between gap-6 mb-4">
+            <h2 className="text-2xl font-semibold text-card-foreground flex-1">
+              {clip.Title}
+            </h2>
+            <div className="text-md flex-1 text-center">
+              <div className="text-left inline-block">
+                <span className="font-semibold text-card-foreground">
+                  Season:
+                </span>{' '}
+                {clip.Season || 'N/A'}
+                <div>
+                  <span className="font-semibold text-card-foreground">
+                    Episode:
+                  </span>{' '}
+                  {clip.Episode || 'N/A'}
+                </div>
+              </div>
             </div>
+            {clip.Urls?.ImagePublicUrl && (
+              <div className="w-1/12 flex-shrink-0">
+                <img
+                  src={clip.Urls.ImagePublicUrl}
+                  alt={clip.Title}
+                  className="w-full h-auto rounded-md object-cover"
+                />
+              </div>
+            )}
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Status
+              </Label>
+              <div className="mt-1">
+                <Badge
+                  className={getStatusColor(clip.PublishState as PublishState)}
+                >
+                  {clip.PublishState}
+                </Badge>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Visibility
+              </Label>
+              <div className="mt-1">
+                <Badge
+                  className={getVisibilityColor(clip.Visibility as Visibility)}
+                >
+                  {clip.Visibility}
+                </Badge>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Episode Type
+              </Label>
+              <p className="mt-1 text-sm">{clip.EpisodeType || 'Not set'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Duration
+              </Label>
+              <p className="mt-1 text-sm font-mono">
+                {formatDuration(clip.DurationSeconds)}
+              </p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Published Date
+              </Label>
+              <p className="mt-1 text-sm">{formatDate(clip.PublishedUtc)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 bg-purple-100 overflow-hidden">
+          {/* Left Column: Clip Info & Editing */}
+          <div className="flex-1 flex flex-col gap-6 bg-orange-100 min-h-0 overflow-hidden">
             {/* Editable Fields */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Clip</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description (HTML)</Label>
-                  <Textarea
-                    id="description"
+            <div className="flex flex-col flex-1 min-h-0 gap-4 bg-pink-100 overflow-hidden">
+              <h2 className="text-xl font-semibold flex-shrink-0">Edit Clip</h2>
+              <div className="flex-shrink-0">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex flex-col flex-1 min-h-0 bg-cyan-100 overflow-hidden">
+                <Label htmlFor="description" className="flex-shrink-0">
+                  Description
+                </Label>
+                <div className="mt-1 relative flex-1 min-h-0 bg-lime-100">
+                  <RichTextEditor
                     value={descriptionHtml}
-                    onChange={(e) => setDescriptionHtml(e.target.value)}
-                    rows={8}
-                    className="mt-1 font-mono text-sm"
-                    placeholder="Enter HTML description..."
+                    onChange={setDescriptionHtml}
+                    immediatelyRender={false}
+                    placeholder="Enter a description for your clip..."
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    HTML tags are supported for rich formatting
-                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Right Column: Clip Details */}
-          <div className="flex flex-col gap-6 overflow-y-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Clip Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Status
-                    </Label>
-                    <div className="mt-1">
-                      <Badge
-                        className={getStatusColor(
-                          clip.PublishState as PublishState,
-                        )}
-                      >
-                        {clip.PublishState}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Visibility
-                    </Label>
-                    <p className="mt-1 text-sm">
-                      {clip.Visibility || 'Not set'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Season
-                    </Label>
-                    <p className="mt-1 text-sm">{clip.Season || 'Not set'}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Episode
-                    </Label>
-                    <p className="mt-1 text-sm">{clip.Episode || 'Not set'}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Episode Type
-                  </Label>
-                  <p className="mt-1 text-sm">
-                    {clip.EpisodeType || 'Not set'}
-                  </p>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Duration
-                  </Label>
-                  <p className="mt-1 text-sm font-mono">
-                    {formatDuration(clip.DurationSeconds)}
-                  </p>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Published Date
-                  </Label>
-                  <p className="mt-1 text-sm">
-                    {formatDate(clip.PublishedUtc)}
-                  </p>
-                </div>
-
-                {/* <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Downloads</Label>
-                  <p className="mt-1 text-sm font-semibold">{clip.Downloads.toLocaleString()}</p>
-                </div> */}
-              </CardContent>
-            </Card>
-
+          <div className="flex-1 flex flex-col gap-6 min-h-0 overflow-y-auto">
             {/* Description Display */}
             {clip.DescriptionHtml && (
               <Card>
