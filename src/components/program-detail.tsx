@@ -17,20 +17,22 @@ import { useState, useEffect } from 'react';
 
 interface ProgramDetailProps {
   program: Program;
-  programClips?: Clips;
   network?: Network;
   onBack: () => void;
 }
 
 export default function ProgramDetail({
   program,
-  programClips,
   network,
   onBack,
 }: ProgramDetailProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<Playlists>([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>("")
+  const [clips, setClips] = useState<Clips>([]);
+
+  const filteredClips = clips?.filter((clip) => clip.PlaylistIds.includes(selectedPlaylistId))
 
   const fetchData = async () => {
     setLoading(true);
@@ -73,7 +75,13 @@ export default function ProgramDetail({
     if (program) {
       fetchData();
     }
-  }, []);
+  }, [program]);
+
+  useEffect(() => {
+  if (playlists && playlists.length > 0) {
+    setSelectedPlaylistId(playlists[0].Id);
+  }
+}, [playlists]);
 
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
@@ -163,7 +171,7 @@ export default function ProgramDetail({
 
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-2">
-                {programClips?.slice(0, 10).map((clip) => (
+                {filteredClips?.slice(0, 10).map((clip) => (
                   <ClipItem key={clip.Id} clip={clip} />
                 ))}
               </div>

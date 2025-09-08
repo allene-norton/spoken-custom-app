@@ -56,7 +56,6 @@ export function Welcome({
     return (
       <ProgramDetail
         program={selectedProgram}
-        programClips={programClips}
         network={network}
         onBack={handleBackClick}
       />
