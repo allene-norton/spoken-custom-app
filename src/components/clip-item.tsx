@@ -95,6 +95,7 @@ const getProcessingColor = (processingState: ClipProcessingState) => {
 
 interface ClipItemProps {
   clip: Clip;
+  onClick?: (clip: Clip) => void
 }
 
 export default function ClipItem({ clip }: ClipItemProps) {

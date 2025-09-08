@@ -2,12 +2,13 @@
 
 import { useBreadcrumbs } from '@/bridge/header';
 import { Body, Heading, Icon } from 'copilot-design-system';
-import { Company, Programs, Playlists, Clips, Network, Program } from '@/app/types';
+import { Company, Programs, Playlists, Clips, Network, Program, Clip } from '@/app/types';
 import ProgramCard from '@/components/program-card';
 import ClipItem from '@/components/clip-item';
 import Analytics from '@/components/analytics';
 import { useState } from "react"
 import ProgramDetail from '@/components/program-detail';
+import ClipDetail from '@/components/clip-detail';
 
 
 /**
@@ -20,10 +21,8 @@ export function Welcome({
   portalUrl,
   company,
   programs,
-  playlists,
   recentClips,
   network,
-  programClips
 }: {
   portalUrl?: string;
   company?: Company;
@@ -31,7 +30,6 @@ export function Welcome({
   playlists?: Playlists;
   recentClips?: Clips;
   network?: Network;
-  programClips?: Clips
 }) {
   useBreadcrumbs(
     [
@@ -43,13 +41,26 @@ export function Welcome({
   );
 
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
+  const [selectedClip, setSelectedClip] = useState<Clip | null>(null)
 
   const handleProgramClick = (program: Program) => {
     setSelectedProgram(program)
   }
 
+  const handleClipClick = (clip: Clip) => {
+    setSelectedClip(clip)
+  }
+
   const handleBackClick = () => {
     setSelectedProgram(null)
+  }
+
+  const handleClipBackClick = () => {
+    setSelectedClip(null)
+  }
+
+  if (selectedClip) {
+    return <ClipDetail clip={selectedClip} onBack={handleClipBackClick} />
   }
 
   if (selectedProgram) {
@@ -100,7 +111,7 @@ export function Welcome({
               <div className="flex-1 overflow-y-auto">
                 <div className="space-y-1">
                   {recentClips?.slice(0, 10).map((clip) => (
-                    <ClipItem key={clip.Id} clip={clip} />
+                    <ClipItem key={clip.Id} clip={clip} onClick={handleClipClick} />
                   ))}
                 </div>
               </div>
