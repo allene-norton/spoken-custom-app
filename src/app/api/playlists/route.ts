@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   const playlistData = await getClipsByPlaylist(playlistId);
-  console.log(playlistData)
+  // console.log(playlistData)
 
   return NextResponse.json(playlistData);
 }

@@ -22,19 +22,61 @@ interface ProgramDetailProps {
   onBack: () => void;
 }
 
+// Shimmer loading component
+const Shimmer = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse bg-muted rounded ${className}`} />
+);
+
+// Loading skeleton for playlists
+const PlaylistSkeleton = () => (
+  <div className="space-y-2">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
+        <Shimmer className="w-12 h-12 rounded" />
+        <div className="flex-1 space-y-2">
+          <Shimmer className="h-4 w-3/4" />
+          <Shimmer className="h-3 w-1/2" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// Loading skeleton for clips
+const ClipSkeleton = () => (
+  <div className="space-y-2">
+    {[...Array(5)].map((_, i) => (
+      <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
+        <Shimmer className="w-16 h-16 rounded" />
+        <div className="flex-1 space-y-2">
+          <Shimmer className="h-4 w-full" />
+          <Shimmer className="h-3 w-3/4" />
+          <div className="flex gap-2 mt-2">
+            <Shimmer className="h-3 w-16" />
+            <Shimmer className="h-3 w-20" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export default function ProgramDetail({
   program,
   network,
   onBack,
 }: ProgramDetailProps) {
   const [loading, setLoading] = useState(false);
+  const [clipsLoading, setClipsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<Playlists>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<
     string | null | undefined
   >(null);
   const [clips, setClips] = useState<Clips>([]);
-  const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<string | null | undefined>("")
+  const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<
+    string | null | undefined
+  >('');
 
   const filteredClips = clips?.filter((clip) =>
     selectedPlaylistId ? clip.PlaylistIds.includes(selectedPlaylistId) : false,
@@ -42,7 +84,8 @@ export default function ProgramDetail({
 
   const handlePlaylistClick = async (playlist: Playlist) => {
     setSelectedPlaylistId(playlist.Id);
-    setSelectedPlaylistTitle(playlist.Title)
+    setSelectedPlaylistTitle(playlist.Title);
+    setClipsLoading(true);
 
     if (playlist.Id) {
       try {
@@ -53,6 +96,8 @@ export default function ProgramDetail({
         setClips(clips);
       } catch (error) {
         console.error('Failed to fetch clips:', error);
+      } finally {
+        setClipsLoading(false);
       }
     }
   };
@@ -106,6 +151,7 @@ export default function ProgramDetail({
       }
 
       const fetchClips = async () => {
+        setClipsLoading(true);
         try {
           const response = await fetch(
             `/api/playlists?playlistId=${encodeURIComponent(firstPlaylistId)}`,
@@ -114,6 +160,8 @@ export default function ProgramDetail({
           setClips(clips);
         } catch (error) {
           console.error('Failed to fetch clips:', error);
+        } finally {
+          setClipsLoading(false);
         }
       };
 
@@ -141,9 +189,9 @@ export default function ProgramDetail({
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 flex gap-8 min-h-0">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
           {/* Left Column: Program Details */}
-          <div className="w-1/2 flex flex-col gap-6">
+          <div className="flex flex-col gap-6 min-w-0">
             {/* Program Artwork */}
             <div className="flex flex-col items-center gap-4">
               <div className="w-48 h-48 flex-shrink-0">
@@ -156,30 +204,39 @@ export default function ProgramDetail({
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
-              <p className="text-muted-foreground text-center w-full">
+              <p className="text-muted-foreground text-center w-full text-sm">
                 {program.Description || 'No description available'}
               </p>
             </div>
 
             {/* Playlists Section */}
-            <Card className="min-w-0">
-              <CardHeader>
-                <CardTitle>Playlists {loading && '(Loading...)'}</CardTitle>
+            <Card className="flex-1 min-h-0 flex flex-col">
+              <CardHeader className="pb-4 flex-shrink-0">
+                <CardTitle className="flex items-center gap-2">
+                  Playlists{' '}
+                  {loading && (
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    </div>
+                  )}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="min-w-0">
+              <CardContent className="flex-1 overflow-hidden">
                 {error && (
                   <p className="text-red-500 text-sm mb-2">Error: {error}</p>
                 )}
                 {loading ? (
-                  <p className="text-muted-foreground">Loading playlists...</p>
+                  <PlaylistSkeleton />
                 ) : (
                   <>
                     {playlists?.length === 0 ? (
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         No playlists found
                       </p>
                     ) : (
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                      <div className="space-y-2 h-full overflow-y-auto">
                         {playlists?.map((playlist, index) => {
                           return (
                             <PlaylistCard
@@ -203,17 +260,35 @@ export default function ProgramDetail({
           </div>
 
           {/* Right Column: Latest Clips */}
-          <div className="flex-1 flex flex-col min-w-0">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              {selectedPlaylistTitle} Clips
-            </h2>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+              <h2 className="text-2xl font-semibold text-foreground">
+                Latest {selectedPlaylistTitle} Clips
+              </h2>
+              {clipsLoading && (
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                </div>
+              )}
+            </div>
 
             <div className="flex-1 overflow-y-auto">
-              <div className="space-y-2">
-                {filteredClips?.slice(0, 10).map((clip) => (
-                  <ClipItem key={clip.Id} clip={clip} />
-                ))}
-              </div>
+              {clipsLoading ? (
+                <ClipSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  {filteredClips?.slice(0, 10).map((clip) => (
+                    <ClipItem key={clip.Id} clip={clip} />
+                  ))}
+                  {!clipsLoading && filteredClips?.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">
+                      No clips found for this playlist
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
