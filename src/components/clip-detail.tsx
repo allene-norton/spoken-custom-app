@@ -201,7 +201,7 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 overflow-hidden mb-8">
           {/* Left Column: Clip Info & Editing */}
           <div className="w-full lg:w-1/2 flex flex-col gap-6 min-h-0 overflow-hidden">
             {/* Editable Fields */}
