@@ -1,11 +1,17 @@
 import { Card } from "@/components/ui/card"
-import type { Playlist } from "@/app/types"
+import type { Playlists, Playlist, Program, Network } from "@/app/types"
+import { useState } from "react";
 
 interface PlaylistCardProps {
-  playlist: Playlist
+  playlist: Playlist;
+  program: Program;
+  network: Network
 }
 
-export default function PlaylistCard({ playlist }: PlaylistCardProps) {
+export default function PlaylistCard({ playlist, program, network }: PlaylistCardProps) {
+
+
+
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3 p-3">
@@ -21,7 +27,7 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-card-foreground text-sm truncate">{playlist.Title}</h4>
-          {/* <p className="text-xs text-muted-foreground">{playlist.clipCount} clips</p> */}
+          <p className="text-xs text-muted-foreground">{playlist.NumberOfClips} clips</p>
         </div>
       </div>
     </Card>

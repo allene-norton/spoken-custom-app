@@ -1,32 +1,100 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft } from "lucide-react"
-import PlaylistCard from "@/components/playlist-card"
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft } from 'lucide-react';
+import PlaylistCard from '@/components/playlist-card';
 // import ProgramAnalytics from "./program-analytics"
-import ClipItem from "./clip-item"
-import type { Program, Playlist, Playlists, Clips, Clip, Network } from "@/app/types"
+import ClipItem from './clip-item';
+import type {
+  Program,
+  Playlist,
+  Playlists,
+  Clips,
+  Clip,
+  Network,
+} from '@/app/types';
+import { useState, useEffect } from 'react';
 
 interface ProgramDetailProps {
-  program: Program
-  playlists: Playlists
-  programClips?: Clips
-  network: Network
-  onBack: () => void
+  program: Program;
+  programClips?: Clips;
+  network?: Network;
+  onBack: () => void;
 }
 
-export default function ProgramDetail({ program, playlists, programClips, network, onBack }: ProgramDetailProps) {
+export default function ProgramDetail({
+  program,
+  programClips,
+  network,
+  onBack,
+}: ProgramDetailProps) {
+  const [data, setData] = useState<Playlists>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [playlists, setPlaylists] = useState<Playlists>([]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+
+    if (!network) {
+      setError('Network not found');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (!program) {
+        throw new Error('Program not found');
+      }
+      const params = new URLSearchParams({
+        networkId: network.Id,
+        programId: program.Id,
+      });
+
+      const response = await fetch(`/api/programs?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch data');
+
+      const result: Playlists = await response.json();
+      console.log('API Response:', result); // Better logging
+      console.log(
+        'Playlists array:',
+        Array.isArray(result),
+        'Length:',
+        result?.length,
+      );
+      setPlaylists(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (program) {
+      fetchData();
+    }
+  }, []);
+
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
       <div className="max-w-7xl mx-auto flex-1 flex flex-col">
         {/* Header */}
         <header className="mb-4 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={onBack} className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="flex items-center gap-2"
+          >
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold text-foreground text-balance">{program.Name}</h1>
+          <h1 className="text-3xl font-bold text-foreground text-balance">
+            {program.Name}
+          </h1>
         </header>
 
         {/* Main Content */}
@@ -39,28 +107,50 @@ export default function ProgramDetail({ program, playlists, programClips, networ
                 <img
                   src={
                     program.Urls.ImagePublicUrl ||
-                    `/placeholder.svg?height=192&width=192&query=${encodeURIComponent(program.Name + " podcast cover") || "/placeholder.svg"}`
+                    `/placeholder.svg?height=192&width=192&query=${encodeURIComponent(program.Name + ' podcast cover') || '/placeholder.svg'}`
                   }
                   alt={`${program.Name} cover`}
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <p className="text-muted-foreground text-center w-full">
-                {program.Description || "No description available"}
+                {program.Description || 'No description available'}
               </p>
             </div>
 
             {/* Playlists Section */}
             <Card>
               <CardHeader>
-                <CardTitle>Playlists</CardTitle>
+                <CardTitle>Playlists {loading && '(Loading...)'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {playlists?.map((playlist) => (
-                    <PlaylistCard key={playlist.Id} playlist={playlist} />
-                  ))}
-                </div>
+                {error && (
+                  <p className="text-red-500 text-sm mb-2">Error: {error}</p>
+                )}
+                {loading ? (
+                  <p className="text-muted-foreground">Loading playlists...</p>
+                ) : (
+                  <>
+                    {playlists?.length === 0 ? (
+                      <p className="text-muted-foreground">
+                        No playlists found
+                      </p>
+                    ) : (
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {playlists?.map((playlist, index) => {
+                          return (
+                            <PlaylistCard
+                              key={playlist?.Id || index}
+                              playlist={playlist}
+                              program={program}
+                              network={network}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -70,7 +160,9 @@ export default function ProgramDetail({ program, playlists, programClips, networ
 
           {/* Right Column: Latest Clips */}
           <div className="flex-1 flex flex-col">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">Latest Clips</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">
+              Latest Clips
+            </h2>
 
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-2">
@@ -83,5 +175,5 @@ export default function ProgramDetail({ program, playlists, programClips, networ
         </div>
       </div>
     </div>
-  )
+  );
 }

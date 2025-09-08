@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   const programId = searchParams.get('programId');
 
   const playlistData = await getPlaylistsByProgram(programId);
+  // console.log(playlistData)
 
   const mockData = {
     ProgramId: '938afd0a-06ac-477a-b063-a7310005bfa8',
