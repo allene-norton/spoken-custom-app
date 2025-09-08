@@ -1,20 +1,17 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import PlaylistCard from '@/components/playlist-card';
-// import ProgramAnalytics from "./program-analytics"
 import ClipItem from './clip-item';
 import type {
   Program,
   Playlists,
   Clips,
-  Clip,
   Network,
   Playlist,
 } from '@/app/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 interface ProgramDetailProps {
   program: Program;
@@ -22,15 +19,22 @@ interface ProgramDetailProps {
   onBack: () => void;
 }
 
-// Shimmer loading component
+// Loading Components
+const LoadingDots = () => (
+  <div className="flex items-center gap-1">
+    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+  </div>
+);
+
 const Shimmer = ({ className }: { className?: string }) => (
   <div className={`animate-pulse bg-muted rounded ${className}`} />
 );
 
-// Loading skeleton for playlists
 const PlaylistSkeleton = () => (
   <div className="space-y-2">
-    {[...Array(3)].map((_, i) => (
+    {Array.from({ length: 3 }, (_, i) => (
       <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
         <Shimmer className="w-12 h-12 rounded" />
         <div className="flex-1 space-y-2">
@@ -42,10 +46,9 @@ const PlaylistSkeleton = () => (
   </div>
 );
 
-// Loading skeleton for clips
 const ClipSkeleton = () => (
   <div className="space-y-2">
-    {[...Array(5)].map((_, i) => (
+    {Array.from({ length: 5 }, (_, i) => (
       <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
         <Shimmer className="w-16 h-16 rounded" />
         <div className="flex-1 space-y-2">
@@ -61,234 +64,256 @@ const ClipSkeleton = () => (
   </div>
 );
 
-export default function ProgramDetail({
-  program,
-  network,
-  onBack,
-}: ProgramDetailProps) {
+// Custom hook for playlists data
+const usePlaylists = (program: Program, network?: Network) => {
   const [loading, setLoading] = useState(false);
-  const [clipsLoading, setClipsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<Playlists>([]);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<
-    string | null | undefined
-  >(null);
-  const [clips, setClips] = useState<Clips>([]);
-  const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<
-    string | null | undefined
-  >('');
 
-  const filteredClips = clips?.filter((clip) =>
-    selectedPlaylistId ? clip.PlaylistIds.includes(selectedPlaylistId) : false,
-  );
-
-  const handlePlaylistClick = async (playlist: Playlist) => {
-    setSelectedPlaylistId(playlist.Id);
-    setSelectedPlaylistTitle(playlist.Title);
-    setClipsLoading(true);
-
-    if (playlist.Id) {
-      try {
-        const response = await fetch(
-          `/api/playlists?playlistId=${encodeURIComponent(playlist.Id)}`,
-        );
-        const clips = await response.json();
-        setClips(clips);
-      } catch (error) {
-        console.error('Failed to fetch clips:', error);
-      } finally {
-        setClipsLoading(false);
-      }
-    }
-  };
-
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-
-    if (!network) {
-      setError('Network not found');
-      setLoading(false);
+  const fetchPlaylists = useCallback(async () => {
+    if (!program?.Id || !network) {
+      setError(!network ? 'Network not found' : 'Program not found');
       return;
     }
 
-    try {
-      if (!program) {
-        throw new Error('Program not found');
-      }
-      const params = new URLSearchParams({
-        programId: program.Id,
-      });
+    setLoading(true);
+    setError(null);
 
+    try {
+      const params = new URLSearchParams({ programId: program.Id });
       const response = await fetch(`/api/programs?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch data');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch playlists: ${response.statusText}`);
+      }
 
       const result: Playlists = await response.json();
       setPlaylists(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch playlists';
+      setError(errorMessage);
+      console.error('Error fetching playlists:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [program?.Id, network]);
 
   useEffect(() => {
-    if (program) {
-      fetchData();
-    }
-  }, [program]);
+    fetchPlaylists();
+  }, [fetchPlaylists]);
 
-  useEffect(() => {
-    if (playlists && playlists.length > 0) {
-      const firstPlaylistId = playlists[0].Id;
-      const firstPlaylistTitle = playlists[0].Title;
-      setSelectedPlaylistId(firstPlaylistId);
-      setSelectedPlaylistTitle(firstPlaylistTitle);
+  return { playlists, loading, error, refetch: fetchPlaylists };
+};
 
-      if (!firstPlaylistId) {
-        console.error('Playlist ID is missing');
-        return;
+// Custom hook for clips data
+const useClips = () => {
+  const [loading, setLoading] = useState(false);
+  const [clips, setClips] = useState<Clips>([]);
+
+  const fetchClips = useCallback(async (playlistId: string) => {
+    if (!playlistId) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/playlists?playlistId=${encodeURIComponent(playlistId)}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch clips: ${response.statusText}`);
       }
 
-      const fetchClips = async () => {
-        setClipsLoading(true);
-        try {
-          const response = await fetch(
-            `/api/playlists?playlistId=${encodeURIComponent(firstPlaylistId)}`,
-          );
-          const clips = await response.json();
-          setClips(clips);
-        } catch (error) {
-          console.error('Failed to fetch clips:', error);
-        } finally {
-          setClipsLoading(false);
-        }
-      };
-
-      fetchClips();
+      const clipsData = await response.json();
+      setClips(clipsData);
+    } catch (error) {
+      console.error('Failed to fetch clips:', error);
+      setClips([]);
+    } finally {
+      setLoading(false);
     }
-  }, [playlists]);
+  }, []);
+
+  return { clips, loading, fetchClips };
+};
+
+// Program artwork component
+const ProgramArtwork = ({ program, size = 'large' }: { program: Program; size?: 'small' | 'large' }) => {
+  const sizeClasses = {
+    small: 'w-20 h-20 sm:w-24 sm:h-24',
+    large: 'w-48 h-48'
+  };
+
+  const fallbackUrl = `/placeholder.svg?height=${size === 'large' ? '192' : '96'}&width=${size === 'large' ? '192' : '96'}&query=${encodeURIComponent(program.Name + ' podcast cover')}`;
+
+  return (
+    <div className={`${sizeClasses[size]} flex-shrink-0`}>
+      <img
+        src={program.Urls.ImagePublicUrl || fallbackUrl}
+        alt={`${program.Name} cover`}
+        className="w-full h-full object-cover rounded-lg"
+        loading="lazy"
+      />
+    </div>
+  );
+};
+
+// Main component
+export default function ProgramDetail({ program, network, onBack }: ProgramDetailProps) {
+  const { playlists, loading: playlistsLoading, error } = usePlaylists(program, network);
+  const { clips, loading: clipsLoading, fetchClips } = useClips();
+  
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+  const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<string>('');
+
+  // Auto-select first playlist when playlists are loaded
+  useEffect(() => {
+    if ( playlists && playlists.length > 0 && !selectedPlaylistId) {
+      const firstPlaylist = playlists[0];
+      if (firstPlaylist?.Id) {
+        setSelectedPlaylistId(firstPlaylist.Id);
+        setSelectedPlaylistTitle(firstPlaylist.Title || '');
+        fetchClips(firstPlaylist.Id);
+      }
+    }
+  }, [playlists, selectedPlaylistId, fetchClips]);
+
+  const handlePlaylistClick = useCallback(async (playlist: Playlist) => {
+    if (!playlist?.Id) return;
+    
+    setSelectedPlaylistId(playlist.Id);
+    setSelectedPlaylistTitle(playlist.Title || '');
+    fetchClips(playlist.Id);
+  }, [fetchClips]);
+
+  // Memoized filtered clips
+  const filteredClips = useMemo(() => {
+    if (!selectedPlaylistId) return [];
+    return clips?.filter(clip => 
+      clip.PlaylistIds?.includes(selectedPlaylistId)
+    ) || [];
+  }, [clips, selectedPlaylistId]);
+
+  // Render playlists content
+  const renderPlaylistsContent = () => {
+    if (error) {
+      return <p className="text-red-500 text-sm mb-2">Error: {error}</p>;
+    }
+
+    if (playlistsLoading) {
+      return <PlaylistSkeleton />;
+    }
+
+    if (playlists?.length === 0) {
+      return <p className="text-muted-foreground text-sm">No playlists found</p>;
+    }
+
+    return (
+      <>
+        {playlists?.map((playlist, index) => (
+          <PlaylistCard
+            key={playlist?.Id || `playlist-${index}`}
+            playlist={playlist}
+            program={program}
+            network={network}
+            onClick={handlePlaylistClick}
+          />
+        ))}
+      </>
+    );
+  };
+
+  // Render clips content
+  const renderClipsContent = () => {
+    if (clipsLoading) {
+      return <ClipSkeleton />;
+    }
+
+    if (filteredClips?.length === 0) {
+      return (
+        <p className="text-muted-foreground text-center py-8">
+          No clips found for this playlist
+        </p>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        {filteredClips.slice(0, 10).map((clip) => (
+          <ClipItem key={clip.Id} clip={clip} />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
-      <div className="max-w-7xl mx-auto flex-1 flex flex-col">
+      <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <header className="mb-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
-          <h1 className="text-3xl font-bold text-foreground text-balance">
-            {program.Name}
-          </h1>
+        <header className="mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="flex items-center gap-2"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-balance line-clamp-2">
+              {program.Name}
+            </h1>
+          </div>
         </header>
 
-        {/* Main Content */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
-          {/* Left Column: Program Details */}
-          <div className="flex flex-col gap-6 min-w-0">
-            {/* Program Artwork */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-48 h-48 flex-shrink-0">
-                <img
-                  src={
-                    program.Urls.ImagePublicUrl ||
-                    `/placeholder.svg?height=192&width=192&query=${encodeURIComponent(program.Name + ' podcast cover') || '/placeholder.svg'}`
-                  }
-                  alt={`${program.Name} cover`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
-              <p className="text-muted-foreground text-center w-full text-sm">
-                {program.Description || 'No description available'}
-              </p>
+        {/* Program Info - Desktop only */}
+        <div className="hidden lg:flex flex-col items-center gap-4 pb-6 flex-shrink-0">
+          <ProgramArtwork program={program} size="large" />
+          <div className="text-muted-foreground text-center w-full text-sm">
+            {program.Description || 'No description available'}
+          </div>
+        </div>
+
+        {/* Mobile Program Info */}
+        <div className="flex lg:hidden items-start gap-4 p-4 bg-card rounded-lg mb-4 flex-shrink-0">
+          <ProgramArtwork program={program} size="small" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-muted-foreground line-clamp-3">
+              {program.Description || 'No description available'}
+            </p>
+          </div>
+        </div>
+
+        {/* Main Content - Two Column Layout */}
+        <div className="flex-1 flex gap-8 min-h-0">
+          {/* Left Column: Playlists */}
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+              <h2 className="text-2xl font-semibold text-foreground">
+                Playlists
+              </h2>
+              {playlistsLoading && <LoadingDots />}
             </div>
 
-            {/* Playlists Section */}
-            <Card className="flex-1 min-h-0 flex flex-col">
-              <CardHeader className="pb-4 flex-shrink-0">
-                <CardTitle className="flex items-center gap-2">
-                  Playlists{' '}
-                  {loading && (
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                    </div>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-hidden">
-                {error && (
-                  <p className="text-red-500 text-sm mb-2">Error: {error}</p>
-                )}
-                {loading ? (
-                  <PlaylistSkeleton />
-                ) : (
-                  <>
-                    {playlists?.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">
-                        No playlists found
-                      </p>
-                    ) : (
-                      <div className="space-y-2 h-full overflow-y-auto">
-                        {playlists?.map((playlist, index) => {
-                          return (
-                            <PlaylistCard
-                              key={playlist?.Id || index}
-                              playlist={playlist}
-                              program={program}
-                              network={network}
-                              onClick={handlePlaylistClick}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Program Analytics */}
-            {/* <ProgramAnalytics network={network} programId={program.id} /> */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-2">
+                {renderPlaylistsContent()}
+              </div>
+            </div>
           </div>
 
-          {/* Right Column: Latest Clips */}
-          <div className="flex flex-col min-w-0">
+          {/* Right Column: Clips */}
+          <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-4 flex-shrink-0">
               <h2 className="text-2xl font-semibold text-foreground">
                 Latest {selectedPlaylistTitle} Clips
               </h2>
-              {clipsLoading && (
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                </div>
-              )}
+              {clipsLoading && <LoadingDots />}
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {clipsLoading ? (
-                <ClipSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  {filteredClips?.slice(0, 10).map((clip) => (
-                    <ClipItem key={clip.Id} clip={clip} />
-                  ))}
-                  {!clipsLoading && filteredClips?.length === 0 && (
-                    <p className="text-muted-foreground text-center py-8">
-                      No clips found for this playlist
-                    </p>
-                  )}
-                </div>
-              )}
+              {renderClipsContent()}
             </div>
           </div>
         </div>
