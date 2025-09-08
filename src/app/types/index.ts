@@ -120,7 +120,7 @@ export interface Playlist {
   ThirdPartyRssText: {
     ApplePodcastVerify: string | null;
   };
-  Id: string;
+  Id: string | null | undefined;
   OrganizationId: string;
   CreatedAtUtc: string;
   CreatedById: string;
@@ -128,7 +128,7 @@ export interface Playlist {
   ModifiedById: string;
 }
 
-export type Playlists = Playlist[] | undefined;
+export type Playlists = Playlist[] | undefined | null ;
 
 export interface Clip {
   Title: string;

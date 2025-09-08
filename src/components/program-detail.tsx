@@ -6,13 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import PlaylistCard from '@/components/playlist-card';
 // import ProgramAnalytics from "./program-analytics"
 import ClipItem from './clip-item';
-import type {
-  Program,
-  Playlists,
-  Clips,
-  Clip,
-  Network,
-} from '@/app/types';
+import type { Program, Playlists, Clips, Clip, Network } from '@/app/types';
 import { useState, useEffect } from 'react';
 
 interface ProgramDetailProps {
@@ -29,10 +23,14 @@ export default function ProgramDetail({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<Playlists>([]);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>("")
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<
+    string | null | undefined
+  >(null);
   const [clips, setClips] = useState<Clips>([]);
 
-  const filteredClips = clips?.filter((clip) => clip.PlaylistIds.includes(selectedPlaylistId))
+  const filteredClips = clips?.filter((clip) =>
+    selectedPlaylistId ? clip.PlaylistIds.includes(selectedPlaylistId) : false,
+  );
 
   const fetchData = async () => {
     setLoading(true);
@@ -56,13 +54,6 @@ export default function ProgramDetail({
       if (!response.ok) throw new Error('Failed to fetch data');
 
       const result: Playlists = await response.json();
-      console.log('API Response:', result); // Better logging
-      console.log(
-        'Playlists array:',
-        Array.isArray(result),
-        'Length:',
-        result?.length,
-      );
       setPlaylists(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -78,10 +69,30 @@ export default function ProgramDetail({
   }, [program]);
 
   useEffect(() => {
-  if (playlists && playlists.length > 0) {
-    setSelectedPlaylistId(playlists[0].Id);
-  }
-}, [playlists]);
+    if (playlists && playlists.length > 0) {
+      const firstPlaylistId = playlists[0].Id;
+      setSelectedPlaylistId(firstPlaylistId);
+
+      if (!firstPlaylistId) {
+      console.error('Playlist ID is missing');
+      return;
+    }
+
+      const fetchClips = async () => {
+        try {
+          const response = await fetch(
+            `/api/playlists?playlistId=${encodeURIComponent(firstPlaylistId)}`,
+          );
+          const clips = await response.json();
+          setClips(clips)
+        } catch (error) {
+          console.error('Failed to fetch clips:', error);
+        }
+      };
+
+      fetchClips();
+    }
+  }, [playlists]);
 
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
