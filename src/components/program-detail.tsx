@@ -34,6 +34,7 @@ export default function ProgramDetail({
     string | null | undefined
   >(null);
   const [clips, setClips] = useState<Clips>([]);
+  const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<string | null | undefined>("")
 
   const filteredClips = clips?.filter((clip) =>
     selectedPlaylistId ? clip.PlaylistIds.includes(selectedPlaylistId) : false,
@@ -41,6 +42,7 @@ export default function ProgramDetail({
 
   const handlePlaylistClick = async (playlist: Playlist) => {
     setSelectedPlaylistId(playlist.Id);
+    setSelectedPlaylistTitle(playlist.Title)
 
     if (playlist.Id) {
       try {
@@ -94,7 +96,9 @@ export default function ProgramDetail({
   useEffect(() => {
     if (playlists && playlists.length > 0) {
       const firstPlaylistId = playlists[0].Id;
+      const firstPlaylistTitle = playlists[0].Title;
       setSelectedPlaylistId(firstPlaylistId);
+      setSelectedPlaylistTitle(firstPlaylistTitle);
 
       if (!firstPlaylistId) {
         console.error('Playlist ID is missing');
@@ -201,7 +205,7 @@ export default function ProgramDetail({
           {/* Right Column: Latest Clips */}
           <div className="flex-1 flex flex-col min-w-0">
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Latest Clips
+              {selectedPlaylistTitle} Clips
             </h2>
 
             <div className="flex-1 overflow-y-auto">
