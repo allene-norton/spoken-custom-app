@@ -8,7 +8,6 @@ import PlaylistCard from '@/components/playlist-card';
 import ClipItem from './clip-item';
 import type {
   Program,
-  Playlist,
   Playlists,
   Clips,
   Clip,
@@ -29,7 +28,6 @@ export default function ProgramDetail({
   network,
   onBack,
 }: ProgramDetailProps) {
-  const [data, setData] = useState<Playlists>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<Playlists>([]);
@@ -49,7 +47,6 @@ export default function ProgramDetail({
         throw new Error('Program not found');
       }
       const params = new URLSearchParams({
-        networkId: network.Id,
         programId: program.Id,
       });
 
@@ -103,7 +100,7 @@ export default function ProgramDetail({
           <div className="w-1/2 flex flex-col gap-6">
             {/* Program Artwork */}
             <div className="flex flex-col items-center gap-4">
-              <div className="w-48 h-48">
+              <div className="w-48 h-48 flex-shrink-0">
                 <img
                   src={
                     program.Urls.ImagePublicUrl ||
@@ -119,11 +116,11 @@ export default function ProgramDetail({
             </div>
 
             {/* Playlists Section */}
-            <Card>
+            <Card className="min-w-0">
               <CardHeader>
                 <CardTitle>Playlists {loading && '(Loading...)'}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="min-w-0">
                 {error && (
                   <p className="text-red-500 text-sm mb-2">Error: {error}</p>
                 )}
@@ -159,7 +156,7 @@ export default function ProgramDetail({
           </div>
 
           {/* Right Column: Latest Clips */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             <h2 className="text-2xl font-semibold text-foreground mb-4">
               Latest Clips
             </h2>
