@@ -94,7 +94,7 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
 
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
-      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="mb-6 flex items-center gap-4">
           <Button

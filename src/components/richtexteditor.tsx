@@ -155,7 +155,7 @@ export function RichTextEditor({
       </div>
 
       {/* Editor Content */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-[200px]" >
         {viewMode === 'visual' ? (
           <div className="absolute inset-0 overflow-y-auto p-4">
             <EditorContent
