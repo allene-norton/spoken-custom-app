@@ -39,7 +39,7 @@ export function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none p-4',
+        class: 'prose prose-sm max-w-none focus:outline-none',
       },
     },
   });
@@ -82,8 +82,8 @@ export function RichTextEditor({
     <div className="border rounded-md flex flex-col h-full">
       {/* Toolbar */}
       <div className="border-b p-2 flex flex-wrap gap-1 justify-between flex-shrink-0">
-        <div className="flex flex-wrap gap-1">
-          {viewMode === 'visual' && (
+        <div className="flex flex-wrap gap-1 min-w-0 flex-1">
+          {viewMode === 'visual' ? (
             <>
               <Button
                 type="button"
@@ -128,11 +128,13 @@ export function RichTextEditor({
                 <Link className="w-4 h-4" />
               </Button>
             </>
+          ) : ( <div className="h-8"></div>
+
           )}
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-shrink-0">
           <Button
             type="button"
             variant={viewMode === 'visual' ? 'default' : 'ghost'}
@@ -153,16 +155,16 @@ export function RichTextEditor({
       </div>
 
       {/* Editor Content */}
-      <div className="flex-1 relative bg-red-100">
+      <div className="flex-1 relative">
         {viewMode === 'visual' ? (
-          <div className="absolute inset-0 overflow-y-auto">
+          <div className="absolute inset-0 overflow-y-auto p-4">
             <EditorContent
               editor={editor}
-              className="[&_.ProseMirror]:outline-none [&_.ProseMirror]:p-4"
+              className="[&_.ProseMirror]:outline-none"
             />
             {/* Placeholder when empty */}
             {editor.isEmpty && (
-              <p className="absolute top-4 left-4 text-muted-foreground pointer-events-none">
+              <p className="absolute top-0 left-0 text-muted-foreground pointer-events-none">
                 {placeholder}
               </p>
             )}

@@ -94,7 +94,7 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
 
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
-      <div className="max-w-7xl mx-auto flex-1 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col">
         {/* Header */}
         <header className="mb-6 flex items-center gap-4">
           <Button
@@ -201,11 +201,11 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 bg-purple-100 overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 overflow-hidden">
           {/* Left Column: Clip Info & Editing */}
-          <div className="flex-1 flex flex-col gap-6 bg-orange-100 min-h-0 overflow-hidden">
+          <div className="w-full lg:w-1/2 flex flex-col gap-6 min-h-0 overflow-hidden">
             {/* Editable Fields */}
-            <div className="flex flex-col flex-1 min-h-0 gap-4 bg-pink-100 overflow-hidden">
+            <div className="flex flex-col flex-1 min-h-0 gap-4 overflow-hidden">
               <h2 className="text-xl font-semibold flex-shrink-0">Edit Clip</h2>
               <div className="flex-shrink-0">
                 <Label htmlFor="title">Title</Label>
@@ -216,11 +216,11 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
                   className="mt-1"
                 />
               </div>
-              <div className="flex flex-col flex-1 min-h-0 bg-cyan-100 overflow-hidden">
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <Label htmlFor="description" className="flex-shrink-0">
                   Description
                 </Label>
-                <div className="mt-1 relative flex-1 min-h-0 bg-lime-100">
+                <div className="mt-1 relative flex-1 min-h-0">
                   <RichTextEditor
                     value={descriptionHtml}
                     onChange={setDescriptionHtml}
@@ -233,7 +233,7 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
           </div>
 
           {/* Right Column: Clip Details */}
-          <div className="flex-1 flex flex-col gap-6 min-h-0 overflow-y-auto">
+          <div className="w-full lg:w-1/2 flex flex-col gap-6 min-h-0 overflow-y-auto">
             {/* Description Display */}
             {clip.DescriptionHtml && (
               <Card>
