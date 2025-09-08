@@ -95,9 +95,10 @@ const getProcessingColor = (processingState: ClipProcessingState) => {
 
 interface ClipItemProps {
   clip: Clip;
+  onClick?: (clip: Clip) => void
 }
 
-export default function ClipItem({ clip }: ClipItemProps) {
+export default function ClipItem({ clip, onClick }: ClipItemProps) {
   const [imageSrc, setImageSrc] = useState('/placeholder.svg');
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -124,7 +125,7 @@ export default function ClipItem({ clip }: ClipItemProps) {
   }, [clip.Urls.ImagePublicUrl]);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onClick?.(clip)}>
       <div className="flex items-center gap-2 sm:gap-3 px-2 py-0.5">
         {/* Thumbnail - responsive sizing */}
         <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 relative overflow-hidden rounded-md bg-gray-200">
