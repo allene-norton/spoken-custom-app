@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import PlaylistCard from '@/components/playlist-card';
 import ClipItem from './clip-item';
+import ClipDetail from '@/components/clip-detail';
 import type {
   Program,
   Playlists,
   Clips,
   Network,
   Playlist,
+  Clip
 } from '@/app/types';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
@@ -164,6 +166,11 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
   
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<string>('');
+  const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
+
+
+
+  // ------------------ PLAYLISTS HANDLING ------------------------------------------------
 
   // Auto-select first playlist when playlists are loaded
   useEffect(() => {
@@ -177,6 +184,7 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     }
   }, [playlists, selectedPlaylistId, fetchClips]);
 
+  // Click to select playlist
   const handlePlaylistClick = useCallback(async (playlist: Playlist) => {
     if (!playlist?.Id) return;
     
@@ -185,7 +193,7 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     fetchClips(playlist.Id);
   }, [fetchClips]);
 
-  // Filtered clips
+  // Filtered clips based on selected playlist
   const filteredClips = useMemo(() => {
     if (!selectedPlaylistId) return [];
     return clips?.filter(clip => 
@@ -222,6 +230,22 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     );
   };
 
+
+
+
+  // ------------------ CLIPS HANDLING ------------------------------------------------
+
+  // Add clip click handler
+  const handleClipClick = useCallback((clip: Clip) => {
+    setSelectedClip(clip);
+  }, []);
+
+  // Add clip back handler
+  const handleClipBackClick = useCallback(() => {
+    setSelectedClip(null);
+  }, []);
+
+
   // Render clips content
   const renderClipsContent = () => {
     if (clipsLoading) {
@@ -239,12 +263,18 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     return (
       <div className="space-y-2">
         {filteredClips.slice(0, 10).map((clip) => (
-          <ClipItem key={clip.Id} clip={clip} />
+          <ClipItem key={clip.Id} clip={clip} onClick={handleClipClick} />
         ))}
       </div>
     );
   };
 
+  // Add conditional rendering for ClipDetail
+  if (selectedClip) {
+    return <ClipDetail clip={selectedClip} onBack={handleClipBackClick} />;
+  }
+
+  
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
       <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
