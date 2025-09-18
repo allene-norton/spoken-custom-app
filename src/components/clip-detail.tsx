@@ -14,9 +14,14 @@ import { RichTextEditor } from '@/components/richtexteditor';
 interface ClipDetailProps {
   clip: Clip;
   onBack: () => void;
+  onClipUpdated?: () => void;
 }
 
-export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
+export default function ClipDetail({
+  clip,
+  onBack,
+  onClipUpdated,
+}: ClipDetailProps) {
   const [title, setTitle] = useState(clip.Title);
   const [descriptionHtml, setDescriptionHtml] = useState(
     clip.DescriptionHtml || '',
@@ -79,11 +84,17 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
 
       if (response.ok) {
         // Handle success
-        const data = await response.json()
+        const data = await response.json();
         // console.log(`UPDATED CLIP:`, data)
-        setDescriptionHtml(data.DescriptionHtml)
+        setDescriptionHtml(data.DescriptionHtml);
         clip.DescriptionHtml = data.DescriptionHtml;
+        clip.PublishState = 'Publishing'
         console.log('Clip updated successfully');
+
+        // Call the refresh function if provided
+        if (onClipUpdated) {
+          onClipUpdated();
+        }
       }
     } catch (error) {
       console.error('Error updating clip:', error);
@@ -253,4 +264,3 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
     </div>
   );
 }
-

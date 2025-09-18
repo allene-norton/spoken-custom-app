@@ -11,7 +11,7 @@ import type {
   Clips,
   Network,
   Playlist,
-  Clip
+  Clip,
 } from '@/app/types';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
@@ -77,22 +77,19 @@ const usePlaylists = (program: Program, network?: Network) => {
       setError(!network ? 'Network not found' : 'Program not found');
       return;
     }
-
     setLoading(true);
     setError(null);
-
     try {
       const params = new URLSearchParams({ programId: program.Id });
       const response = await fetch(`/api/programs?${params}`);
-      
       if (!response.ok) {
         throw new Error(`Failed to fetch playlists: ${response.statusText}`);
       }
-
       const result: Playlists = await response.json();
       setPlaylists(result);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch playlists';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch playlists';
       setError(errorMessage);
       console.error('Error fetching playlists:', err);
     } finally {
@@ -114,17 +111,14 @@ const useClips = () => {
 
   const fetchClips = useCallback(async (playlistId: string) => {
     if (!playlistId) return;
-
     setLoading(true);
     try {
       const response = await fetch(
-        `/api/playlists?playlistId=${encodeURIComponent(playlistId)}`
+        `/api/playlists?playlistId=${encodeURIComponent(playlistId)}`,
       );
-      
       if (!response.ok) {
         throw new Error(`Failed to fetch clips: ${response.statusText}`);
       }
-
       const clipsData = await response.json();
       setClips(clipsData);
     } catch (error) {
@@ -135,14 +129,25 @@ const useClips = () => {
     }
   }, []);
 
-  return { clips, loading, fetchClips };
+  return {
+    clips,
+    loading,
+    fetchClips,
+    refetchClips: () => clips && clips.length > 0 && setClips([...clips]),
+  };
 };
 
 // Program artwork component
-const ProgramArtwork = ({ program, size = 'large' }: { program: Program; size?: 'small' | 'large' }) => {
+const ProgramArtwork = ({
+  program,
+  size = 'large',
+}: {
+  program: Program;
+  size?: 'small' | 'large';
+}) => {
   const sizeClasses = {
     small: 'w-20 h-20 sm:w-24 sm:h-24',
-    large: 'w-48 h-48'
+    large: 'w-48 h-48',
   };
 
   const fallbackUrl = `/placeholder.svg?height=${size === 'large' ? '192' : '96'}&width=${size === 'large' ? '192' : '96'}&query=${encodeURIComponent(program.Name + ' podcast cover')}`;
@@ -160,21 +165,44 @@ const ProgramArtwork = ({ program, size = 'large' }: { program: Program; size?: 
 };
 
 // Main component
-export default function ProgramDetail({ program, network, onBack }: ProgramDetailProps) {
-  const { playlists, loading: playlistsLoading, error } = usePlaylists(program, network);
+export default function ProgramDetail({
+  program,
+  network,
+  onBack,
+}: ProgramDetailProps) {
+  const {
+    playlists,
+    loading: playlistsLoading,
+    error,
+    refetch: refetchPlaylists,
+  } = usePlaylists(program, network);
   const { clips, loading: clipsLoading, fetchClips } = useClips();
-  
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
-  const [selectedPlaylistTitle, setSelectedPlaylistTitle] = useState<string>('');
+
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
+    null,
+  );
+  const [selectedPlaylistTitle, setSelectedPlaylistTitle] =
+    useState<string>('');
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
 
+  // Refresh function to refetch all data
+  const refreshProgramData = useCallback(async () => {
+    console.log('Refreshing program data...');
 
+    // Refetch playlists
+    await refetchPlaylists();
+
+    // Refetch clips for the currently selected playlist
+    if (selectedPlaylistId) {
+      await fetchClips(selectedPlaylistId);
+    }
+  }, [refetchPlaylists, fetchClips, selectedPlaylistId]);
 
   // ------------------ PLAYLISTS HANDLING ------------------------------------------------
 
   // Auto-select first playlist when playlists are loaded
   useEffect(() => {
-    if ( playlists && playlists.length > 0 && !selectedPlaylistId) {
+    if (playlists && playlists.length > 0 && !selectedPlaylistId) {
       const firstPlaylist = playlists[0];
       if (firstPlaylist?.Id) {
         setSelectedPlaylistId(firstPlaylist.Id);
@@ -185,20 +213,24 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
   }, [playlists, selectedPlaylistId, fetchClips]);
 
   // Click to select playlist
-  const handlePlaylistClick = useCallback(async (playlist: Playlist) => {
-    if (!playlist?.Id) return;
-    
-    setSelectedPlaylistId(playlist.Id);
-    setSelectedPlaylistTitle(playlist.Title || '');
-    fetchClips(playlist.Id);
-  }, [fetchClips]);
+  const handlePlaylistClick = useCallback(
+    async (playlist: Playlist) => {
+      if (!playlist?.Id) return;
+
+      setSelectedPlaylistId(playlist.Id);
+      setSelectedPlaylistTitle(playlist.Title || '');
+      fetchClips(playlist.Id);
+    },
+    [fetchClips],
+  );
 
   // Filtered clips based on selected playlist
   const filteredClips = useMemo(() => {
     if (!selectedPlaylistId) return [];
-    return clips?.filter(clip => 
-      clip.PlaylistIds?.includes(selectedPlaylistId)
-    ) || [];
+    return (
+      clips?.filter((clip) => clip.PlaylistIds?.includes(selectedPlaylistId)) ||
+      []
+    );
   }, [clips, selectedPlaylistId]);
 
   // Render playlists content
@@ -212,7 +244,9 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     }
 
     if (playlists?.length === 0) {
-      return <p className="text-muted-foreground text-sm">No playlists found</p>;
+      return (
+        <p className="text-muted-foreground text-sm">No playlists found</p>
+      );
     }
 
     return (
@@ -230,9 +264,6 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     );
   };
 
-
-
-
   // ------------------ CLIPS HANDLING ------------------------------------------------
 
   // Add clip click handler
@@ -245,6 +276,10 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     setSelectedClip(null);
   }, []);
 
+  // Add clip updated handler
+  const handleClipUpdated = useCallback(() => {
+    refreshProgramData();
+  }, [refreshProgramData]);
 
   // Render clips content
   const renderClipsContent = () => {
@@ -269,12 +304,17 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     );
   };
 
-  // Add conditional rendering for ClipDetail
+  // Add conditional rendering for ClipDetail with refresh callback
   if (selectedClip) {
-    return <ClipDetail clip={selectedClip} onBack={handleClipBackClick} />;
+    return (
+      <ClipDetail
+        clip={selectedClip}
+        onBack={handleClipBackClick}
+        onClipUpdated={handleClipUpdated}
+      />
+    );
   }
 
-  
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
       <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
@@ -327,9 +367,7 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              <div className="space-y-2">
-                {renderPlaylistsContent()}
-              </div>
+              <div className="space-y-2">{renderPlaylistsContent()}</div>
             </div>
           </div>
 
@@ -342,9 +380,7 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
               {clipsLoading && <LoadingDots />}
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              {renderClipsContent()}
-            </div>
+            <div className="flex-1 overflow-y-auto">{renderClipsContent()}</div>
           </div>
         </div>
       </div>
