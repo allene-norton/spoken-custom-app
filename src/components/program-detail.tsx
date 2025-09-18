@@ -185,7 +185,7 @@ export default function ProgramDetail({ program, network, onBack }: ProgramDetai
     fetchClips(playlist.Id);
   }, [fetchClips]);
 
-  // Memoized filtered clips
+  // Filtered clips
   const filteredClips = useMemo(() => {
     if (!selectedPlaylistId) return [];
     return clips?.filter(clip => 
