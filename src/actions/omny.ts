@@ -62,14 +62,16 @@ export async function getNetworkDownloadsByTimeGrouping(
     `${OMNY_BASE_URI}/networks/${networkId}/analytics/downloads?startDate=${startDate}&endDate=${endDate}&interval=${interval}&timeZoneIanaId=${timezone}`,
     options,
   );
-  const downloads = await response.json()
-  return downloads
+  const downloads = await response.json();
+  return downloads;
 }
 
 // get playlists by program
 // https://api.omnystudio.com/v1/programs/{programId}/playlists
 
-export async function getPlaylistsByProgram(programId?: string | undefined | null) {
+export async function getPlaylistsByProgram(
+  programId?: string | undefined | null,
+) {
   const response = await fetch(
     `${OMNY_BASE_URI}/programs/${programId}/playlists`,
     options,
@@ -80,4 +82,34 @@ export async function getPlaylistsByProgram(programId?: string | undefined | nul
 
 // get analytics by program
 
-// get clips by program ?
+// update clip
+
+export async function updateClip(
+  clipId?: string | undefined | null,
+  title?: string | undefined | null,
+  descriptionHtml?: string | undefined | null,
+) {
+  // DEBUG
+  console.log(`Action: Clip ID is ${clipId}`);
+  // console.log(`Action: Clip title is ${title}`);
+  // console.log(`Action: Clip HTML is ${descriptionHtml}`);
+
+  // create request body
+  const updateData: any = {};
+  if (title !== undefined) updateData.Title = title;
+  if (descriptionHtml !== undefined)
+    updateData.DescriptionHtml = descriptionHtml;
+
+  const response = await fetch(`${OMNY_BASE_URI}/clips/${clipId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OMNY_API_KEY}`,
+    },
+    body: JSON.stringify(updateData),
+  });
+
+  const updated = await response.json();
+  console.log(`Action: Response from omny: ${JSON.stringify(updated)}`)
+  return updated;
+}
