@@ -110,6 +110,6 @@ export async function updateClip(
   });
 
   const updated = await response.json();
-  console.log(`Action: Response from omny: ${JSON.stringify(updated)}`)
+  // console.log(`ACTION RETURNING:`, updated)
   return updated;
 }

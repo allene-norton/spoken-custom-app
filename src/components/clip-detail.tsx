@@ -79,6 +79,10 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
 
       if (response.ok) {
         // Handle success
+        const data = await response.json()
+        // console.log(`UPDATED CLIP:`, data)
+        setDescriptionHtml(data.DescriptionHtml)
+        clip.DescriptionHtml = data.DescriptionHtml;
         console.log('Clip updated successfully');
       }
     } catch (error) {
@@ -249,3 +253,4 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
     </div>
   );
 }
+

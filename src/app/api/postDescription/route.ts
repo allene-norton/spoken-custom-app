@@ -10,6 +10,8 @@ export async function PATCH( request: NextRequest) {
 
     const data = await updateClip(clipId, title, descriptionHtml)
 
+    // console.log(`ROUTE DATA:`, data)
+    // console.log(`ROUTE DATA TYPE:`, typeof data)
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
