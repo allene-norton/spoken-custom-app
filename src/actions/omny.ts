@@ -29,7 +29,7 @@ export async function getProgramsByNetwork(networkId?: string | undefined) {
   return programs.Items;
 }
 
-export async function getPlaylistsByNetwork(networkId?: string | undefined) {
+export async function getPlaylistsByNetwork(networkId?: string | null | undefined) {
   const response = await fetch(
     `${OMNY_BASE_URI}/networks/${networkId}/playlists`,
     options,

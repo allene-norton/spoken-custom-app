@@ -39,13 +39,13 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   const programs = await getProgramsByNetwork(network?.Id);
   // console.log(programs)
 
-  const playlists = await getPlaylistsByNetwork(network?.Id);
+  // const playlists = await getPlaylistsByNetwork(network?.Id);
   // console.log(playlists)
 
-  const recentPlaylists = playlists[0];
+  // const recentPlaylists = playlists[0];
   // console.log(recentPlaylists)
 
-  const recentClips = await getClipsByPlaylist(recentPlaylists?.Id);
+  // const recentClips = await getClipsByPlaylist(recentPlaylists?.Id);
   // console.log(recentClips)
 
   return (
@@ -55,8 +55,8 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
         portalUrl={workspace.portalUrl}
         company={company}
         programs={programs}
-        playlists={playlists}
-        recentClips={recentClips}
+        // playlists={playlists}
+        // recentClips={recentClips}
         network={network}
       />
       {/* </Container> */}

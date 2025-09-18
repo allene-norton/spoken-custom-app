@@ -6,7 +6,7 @@ import { Company, Programs, Playlists, Clips, Network, Program, Clip } from '@/a
 import ProgramCard from '@/components/program-card';
 import ClipItem from '@/components/clip-item';
 import Analytics from '@/components/analytics';
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import ProgramDetail from '@/components/program-detail';
 import ClipDetail from '@/components/clip-detail';
 
@@ -21,14 +21,11 @@ export function Welcome({
   portalUrl,
   company,
   programs,
-  recentClips,
   network,
 }: {
   portalUrl?: string;
   company?: Company;
   programs?: Programs;
-  playlists?: Playlists;
-  recentClips?: Clips;
   network?: Network;
 }) {
   useBreadcrumbs(
@@ -40,8 +37,45 @@ export function Welcome({
     { portalUrl },
   );
 
+  //--------------------STATES-----------------------
+
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null)
+  const [recentClips, setRecentClips] = useState<Clips>()
+  const [loading, setLoading] = useState(true)
+
+//---------------- ON MOUNT----------------
+
+useEffect(() => {
+    const fetchClips = async () => {
+      if (!network?.Id) return;
+      
+      setLoading(true);
+      try {
+        // Fetch fresh playlists and clips
+        const params = new URLSearchParams({networkId: network.Id})
+        const playlistsResponse = await fetch(`/api/networkPlaylists?${params}`);
+        const playlists = await playlistsResponse.json();
+        
+        if (playlists?.[0]?.Id) {
+          const clipParams = new URLSearchParams({playlistId: playlists[0].Id})
+          const clipsResponse = await fetch(`/api/playlistClips?${clipParams}`);
+          const clipsData = await clipsResponse.json();
+          setRecentClips(clipsData);
+        }
+      } catch (error) {
+        console.error('Error fetching clips:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClips();
+  }, [network?.Id]);
+
+
+
+  //--------- CLICK HANDLERS---------------------
 
   const handleProgramClick = (program: Program) => {
     setSelectedProgram(program)
@@ -59,6 +93,9 @@ export function Welcome({
     setSelectedClip(null)
   }
 
+
+//--------------- RENDER DETAILS PAGES ----------------------------------------------
+  
   if (selectedClip) {
     return <ClipDetail clip={selectedClip} onBack={handleClipBackClick} />
   }
@@ -72,6 +109,8 @@ export function Welcome({
       />
     )
   }
+
+// ----------------- MAIN COMPONENT ----------------------
 
   return (
     <>
