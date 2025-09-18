@@ -64,7 +64,7 @@ export default function Analytics({ network }: AnalyticsProps) {
         networkId: network.Id,
       });
 
-      const response = await fetch(`/api/downloads?${params}`);
+      const response = await fetch(`/api/networkAnalytics?${params}`);
       if (!response.ok) throw new Error('Failed to fetch data');
 
       const result: DownloadsResponse = await response.json();
