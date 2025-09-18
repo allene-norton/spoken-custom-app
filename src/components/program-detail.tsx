@@ -81,7 +81,7 @@ const usePlaylists = (program: Program, network?: Network) => {
     setError(null);
     try {
       const params = new URLSearchParams({ programId: program.Id });
-      const response = await fetch(`/api/programs?${params}`);
+      const response = await fetch(`/api/programPlaylists?${params}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch playlists: ${response.statusText}`);
       }
