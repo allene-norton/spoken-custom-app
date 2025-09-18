@@ -114,7 +114,7 @@ const useClips = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `/api/playlists?playlistId=${encodeURIComponent(playlistId)}`,
+        `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch clips: ${response.statusText}`);
