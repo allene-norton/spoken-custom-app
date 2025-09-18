@@ -4,23 +4,24 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Save } from 'lucide-react';
 import type { Clip, PublishState, Visibility } from '@/app/types';
 import parse from 'html-react-parser';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { Link as TiptapLink } from '@tiptap/extension-link';
 import { RichTextEditor } from '@/components/richtexteditor';
 
 interface ClipDetailProps {
   clip: Clip;
   onBack: () => void;
+  onClipUpdated?: () => void;
 }
 
-export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
+export default function ClipDetail({
+  clip,
+  onBack,
+  onClipUpdated,
+}: ClipDetailProps) {
   const [title, setTitle] = useState(clip.Title);
   const [descriptionHtml, setDescriptionHtml] = useState(
     clip.DescriptionHtml || '',
@@ -69,21 +70,31 @@ export default function ClipDetail({ clip, onBack }: ClipDetailProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // TODO: Implement API call to update clip
-      const response = await fetch(`/api/clips/${clip.Id}`, {
+      const response = await fetch(`/api/postDescription`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title,
-          descriptionHtml,
+          clipId: clip.Id,
+          title: title,
+          descriptionHtml: descriptionHtml,
         }),
       });
 
       if (response.ok) {
         // Handle success
+        const data = await response.json();
+        // console.log(`UPDATED CLIP:`, data)
+        setDescriptionHtml(data.DescriptionHtml);
+        clip.DescriptionHtml = data.DescriptionHtml;
+        clip.PublishState = 'Publishing'
         console.log('Clip updated successfully');
+
+        // Call the refresh function if provided
+        if (onClipUpdated) {
+          onClipUpdated();
+        }
       }
     } catch (error) {
       console.error('Error updating clip:', error);
