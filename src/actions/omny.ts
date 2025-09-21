@@ -70,7 +70,6 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
   let clipsWithDownloads = recentClips;
 
   if (downloadsItems && downloadsItems.length > 0) {
-        console.log(downloadsItems.map((download: any) => download.Count))
      clipsWithDownloads = recentClips.map((clip: Clip) => ({
       ...clip,
       downloads:
