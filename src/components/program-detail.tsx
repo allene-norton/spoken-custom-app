@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import PlaylistCard from '@/components/playlist-card';
 import ClipItem from './clip-item';
 import ClipDetail from '@/components/clip-detail';
+import ProgramAnalytics from '@/components/programAnalytics';
 import type {
   Program,
   Playlists,
@@ -336,6 +337,8 @@ export default function ProgramDetail({
             </h1>
           </div>
         </header>
+
+        {program && <ProgramAnalytics program={program} />}
 
         {/* Program Info - Desktop only */}
         <div className="hidden lg:flex flex-col items-center gap-4 pb-6 flex-shrink-0">
