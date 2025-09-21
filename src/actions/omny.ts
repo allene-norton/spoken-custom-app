@@ -40,7 +40,7 @@ export async function getProgramsByNetwork(networkId?: string | undefined) {
   const downloadsData = await downloadsResponse.json();
   const downloadsItems = downloadsData.Items ? downloadsData.Items : null
 
-  console.log(`ACTION: programs items`, downloadsItems)
+  // console.log(`ACTION: programs items`, downloadsItems)
 
   // Add downloads to each program
   let programsWithDownloads = programsItems;
