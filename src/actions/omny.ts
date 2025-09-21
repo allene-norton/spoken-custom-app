@@ -29,7 +29,9 @@ export async function getProgramsByNetwork(networkId?: string | undefined) {
   return programs.Items;
 }
 
-export async function getPlaylistsByNetwork(networkId?: string | null | undefined) {
+export async function getPlaylistsByNetwork(
+  networkId?: string | null | undefined,
+) {
   const response = await fetch(
     `${OMNY_BASE_URI}/networks/${networkId}/playlists`,
     options,
@@ -47,7 +49,39 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
   const recentClips = clips.Items.slice(0, 10).map(
     (item: { Clip: Clip }) => item.Clip,
   );
-  return recentClips;
+
+  // add lifetime downloads to clips
+  // https://api.omnystudio.com/v1/analytics/downloads/lifetime/clips (accepts param arr of clip IDs)
+
+  const clipIds = recentClips.map((clip: Clip) => clip.Id);
+
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
+
+  const downloadsResponse = await fetch(
+    `${OMNY_BASE_URI}/analytics/downloads/lifetime/clips?${clipIds.map((id: string) => `clipIds=${id}`).join('&')}`,
+    options,
+  );
+  const downloadsData = await downloadsResponse.json();
+
+  const downloadsItems = downloadsData.Items ? downloadsData.Items : null
+  console.log(`ACTION: downloadItesm`, downloadsItems);
+
+  // Add downloads to each clip
+  let clipsWithDownloads = recentClips;
+
+  if (downloadsItems && downloadsItems.length > 0) {
+        console.log(downloadsItems.map((download: any) => download.Count))
+     clipsWithDownloads = recentClips.map((clip: Clip) => ({
+      ...clip,
+      downloads:
+        downloadsItems.find((download: any) => download.Id === clip.Id)
+          ?.Count || 0,
+    }));
+
+    console.log(`ACTION: clips with downloads`, clipsWithDownloads);
+  }
+
+  return clipsWithDownloads;
 }
 
 export async function getNetworkDownloadsByTimeGrouping(
