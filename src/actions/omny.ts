@@ -64,7 +64,7 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
   const downloadsData = await downloadsResponse.json();
 
   const downloadsItems = downloadsData.Items ? downloadsData.Items : null
-  console.log(`ACTION: downloadItesm`, downloadsItems);
+  // console.log(`ACTION: downloadItesm`, downloadsItems);
 
   // Add downloads to each clip
   let clipsWithDownloads = recentClips;
@@ -78,7 +78,7 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
           ?.Count || 0,
     }));
 
-    console.log(`ACTION: clips with downloads`, clipsWithDownloads);
+    // console.log(`ACTION: clips with downloads`, clipsWithDownloads);
   }
 
   return clipsWithDownloads;
