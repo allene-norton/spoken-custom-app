@@ -194,6 +194,7 @@ export interface Clip {
   CreatedById: string;
   ModifiedAtUtc: string;
   ModifiedById: string;
+  downloads?: number | undefined | null
 }
 
 export type Clips = Clip[] | undefined;

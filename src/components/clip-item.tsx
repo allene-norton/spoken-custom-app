@@ -162,6 +162,13 @@ export default function ClipItem({ clip, onClick }: ClipItemProps) {
               {clip.Title}
             </h3>
 
+            <div className="flex flex-col items-start sm:items-center bg-muted/50 rounded-md px-2 py-1 sm:mx-2 flex-shrink-0">
+              <span className="text-xs text-muted-foreground font-medium">Downloads</span>
+              <span className="text-sm sm:text-base font-semibold text-foreground">
+                {clip.downloads?.toLocaleString() || '0'}
+              </span>
+            </div>
+
             <div className="flex items-center gap-2 sm:ml-3 flex-shrink-0">
               {/* Processing State Icon with HoverCard */}
               <HoverCard openDelay={100} closeDelay={100}>
