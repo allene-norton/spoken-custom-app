@@ -71,6 +71,7 @@ export interface Program {
   CreatedById: string;
   ModifiedAtUtc: string;
   ModifiedById: string;
+  downloads?: number | undefined | null
 }
 
 export type Programs = Program[];

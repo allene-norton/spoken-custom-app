@@ -26,7 +26,34 @@ export async function getProgramsByNetwork(networkId?: string | undefined) {
     options,
   );
   const programs = await response.json();
-  return programs.Items;
+  const programsItems = programs.Items
+
+  // get program downloads
+  // https://api.omnystudio.com/v1/analytics/downloads/lifetime/programs
+  
+  const programIds = programsItems.map((program: any) => program.Id);
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
+  const downloadsResponse = await fetch(
+    `${OMNY_BASE_URI}/analytics/downloads/lifetime/programs?${programIds.map((id: string) => `programIds=${id}`).join('&')}`,
+    options,
+  );
+  const downloadsData = await downloadsResponse.json();
+  const downloadsItems = downloadsData.Items ? downloadsData.Items : null
+
+  console.log(`ACTION: programs items`, downloadsItems)
+
+  // Add downloads to each program
+  let programsWithDownloads = programsItems;
+  if (downloadsItems && downloadsItems.length > 0) {
+    programsWithDownloads = programsItems.map((program: any) => ({
+      ...program,
+      downloads:
+        downloadsItems.find((download: any) => download.Id === program.Id)
+          ?.Count || 0,
+    }));
+  }
+
+  return programsWithDownloads;
 }
 
 export async function getPlaylistsByNetwork(
