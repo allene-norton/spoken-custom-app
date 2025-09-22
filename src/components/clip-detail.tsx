@@ -89,7 +89,7 @@ export default function ClipDetail({
         // console.log(`UPDATED CLIP:`, data)
         setDescriptionHtml(data.DescriptionHtml);
         clip.DescriptionHtml = data.DescriptionHtml;
-        clip.PublishState = 'Publishing'
+        clip.PublishState = 'Publishing';
         console.log('Clip updated successfully');
 
         // Call the refresh function if provided
@@ -123,14 +123,6 @@ export default function ClipDetail({
               Clip Details
             </h1>
           </div>
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </Button>
         </header>
 
         {/* Clip Overview Card */}
@@ -218,10 +210,21 @@ export default function ClipDetail({
         {/* Main Content */}
         <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 overflow-hidden mb-8">
           {/* Left Column: Clip Info & Editing */}
+
           <div className="w-full lg:w-1/2 flex flex-col gap-6 min-h-0 overflow-hidden">
             {/* Editable Fields */}
             <div className="flex flex-col flex-1 min-h-0 gap-4 overflow-hidden">
-              <h2 className="text-xl font-semibold flex-shrink-0">Edit Clip</h2>
+              <div className="flex items-center justify-between flex-shrink-0">
+                <h2 className="text-xl font-semibold">Edit Clip</h2>
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 bg-violet-700 hover:bg-violet-800 text-white"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
               <div className="flex-shrink-0">
                 <Label htmlFor="title">Title</Label>
                 <Input
