@@ -338,8 +338,6 @@ export default function ProgramDetail({
           </div>
         </header>
 
-        {program && <ProgramAnalytics program={program} />}
-
         {/* Program Info - Desktop only */}
         <div className="hidden lg:flex flex-col items-center gap-4 pb-6 flex-shrink-0">
           <ProgramArtwork program={program} size="large" />
@@ -357,6 +355,8 @@ export default function ProgramDetail({
             </p>
           </div>
         </div>
+
+        {program && <ProgramAnalytics program={program} />}
 
         {/* Main Content - Two Column Layout */}
         <div className="flex-1 flex gap-8 min-h-0">
