@@ -109,31 +109,54 @@ const usePlaylists = (program: Program, network?: Network) => {
 const useClips = () => {
   const [loading, setLoading] = useState(false);
   const [clips, setClips] = useState<Clips>([]);
+  const [currentPlaylistId, setCurrentPlaylistId] = useState<string | null>(
+    null,
+  );
+  const [initiallyLoaded, setInitiallyLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchClips = useCallback(async (playlistId: string) => {
-    if (!playlistId) return;
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to fetch clips: ${response.statusText}`);
+  const fetchClips = useCallback(
+    async (playlistId: string) => {
+      if (!playlistId) return;
+
+      // Clear clips immediately when switching playlists
+      if (currentPlaylistId !== playlistId) {
+        setClips([]);
+        setInitiallyLoaded(false); // Reset for new playlist
       }
-      const clipsData = await response.json();
-      setClips(clipsData);
-    } catch (error) {
-      console.error('Failed to fetch clips:', error);
-      setClips([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+
+      setCurrentPlaylistId(playlistId);
+      setLoading(true);
+
+      try {
+        const response = await fetch(
+          `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch clips: ${response.statusText}`);
+        }
+
+        const clipsData = await response.json();
+        setClips(clipsData);
+      } catch (error) {
+        console.error('Failed to fetch clips:', error);
+        setClips([]);
+      } finally {
+        setLoading(false);
+        setInitiallyLoaded(true); // Mark as loaded regardless of success/failure
+      }
+    },
+    [currentPlaylistId],
+  );
 
   return {
     clips,
     loading,
     fetchClips,
+    currentPlaylistId,
+    initiallyLoaded,
+    error,
     refetchClips: () => clips && clips.length > 0 && setClips([...clips]),
   };
 };
@@ -177,7 +200,12 @@ export default function ProgramDetail({
     error,
     refetch: refetchPlaylists,
   } = usePlaylists(program, network);
-  const { clips, loading: clipsLoading, fetchClips } = useClips();
+  const {
+    clips,
+    loading: clipsLoading,
+    fetchClips,
+    initiallyLoaded: clipsInitiallyLoaded,
+  } = useClips();
 
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
     null,
@@ -288,7 +316,11 @@ export default function ProgramDetail({
       return <ClipSkeleton />;
     }
 
-    if (filteredClips?.length === 0) {
+    if (!filteredClips || filteredClips.length === 0) {
+      if (!clipsInitiallyLoaded) {
+        return <ClipSkeleton />; // Still show skeleton if never loaded
+      }
+
       return (
         <p className="text-muted-foreground text-center py-8">
           No clips found for this playlist
