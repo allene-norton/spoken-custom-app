@@ -78,43 +78,103 @@ export async function getClipsByPlaylist(playlistId?: string | undefined) {
     `${OMNY_BASE_URI}/playlists/${playlistId}/clips`,
     options,
   );
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch clips: ${response.status}`);
+  }
+  
   const clips = await response.json();
+  
+  // Handle case where clips.Items might be undefined
+  if (!clips?.Items || !Array.isArray(clips.Items)) {
+    console.warn('No clips found or invalid response structure');
+    return [];
+  }
+  
   const recentClips = clips.Items.slice(0, 10).map(
     (item: { Clip: Clip }) => item.Clip,
   );
 
   // add lifetime downloads to clips
-  // https://api.omnystudio.com/v1/analytics/downloads/lifetime/clips (accepts param arr of clip IDs)
-
   const clipIds = recentClips.map((clip: Clip) => clip.Id);
 
   await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
 
-  const downloadsResponse = await fetch(
-    `${OMNY_BASE_URI}/analytics/downloads/lifetime/clips?${clipIds.map((id: string) => `clipIds=${id}`).join('&')}`,
-    options,
-  );
-  const downloadsData = await downloadsResponse.json();
+  try {
+    const downloadsResponse = await fetch(
+      `${OMNY_BASE_URI}/analytics/downloads/lifetime/clips?${clipIds.map((id: string) => `clipIds=${id}`).join('&')}`,
+      options,
+    );
+    
+    if (!downloadsResponse.ok) {
+      console.warn('Failed to fetch download analytics, returning clips without download counts');
+      return recentClips;
+    }
+    
+    const downloadsData = await downloadsResponse.json();
+    const downloadsItems = downloadsData.Items || [];
 
-  const downloadsItems = downloadsData.Items ? downloadsData.Items : null
-  // console.log(`ACTION: downloadItesm`, downloadsItems);
-
-  // Add downloads to each clip
-  let clipsWithDownloads = recentClips;
-
-  if (downloadsItems && downloadsItems.length > 0) {
-     clipsWithDownloads = recentClips.map((clip: Clip) => ({
-      ...clip,
-      downloads:
-        downloadsItems.find((download: any) => download.Id === clip.Id)
-          ?.Count || 0,
-    }));
-
-    // console.log(`ACTION: clips with downloads`, clipsWithDownloads);
+    // Add downloads to each clip
+    if (downloadsItems.length > 0) {
+      return recentClips.map((clip: Clip) => ({
+        ...clip,
+        downloads:
+          downloadsItems.find((download: any) => download.Id === clip.Id)
+            ?.Count || 0,
+      }));
+    }
+  } catch (error) {
+    console.warn('Error fetching download analytics:', error);
   }
 
-  return clipsWithDownloads;
+  return recentClips;
 }
+
+
+//-----------OG-------------
+// export async function getClipsByPlaylist(playlistId?: string | undefined) {
+//   const response = await fetch(
+//     `${OMNY_BASE_URI}/playlists/${playlistId}/clips`,
+//     options,
+//   );
+//   const clips = await response.json();
+
+//   const recentClips = clips.Items.slice(0, 10).map(
+//     (item: { Clip: Clip }) => item.Clip,
+//   );
+
+//   // add lifetime downloads to clips
+//   // https://api.omnystudio.com/v1/analytics/downloads/lifetime/clips (accepts param arr of clip IDs)
+
+//   const clipIds = recentClips.map((clip: Clip) => clip.Id);
+
+//   await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
+
+//   const downloadsResponse = await fetch(
+//     `${OMNY_BASE_URI}/analytics/downloads/lifetime/clips?${clipIds.map((id: string) => `clipIds=${id}`).join('&')}`,
+//     options,
+//   );
+//   const downloadsData = await downloadsResponse.json();
+
+//   const downloadsItems = downloadsData.Items ? downloadsData.Items : null
+//   // console.log(`ACTION: downloadItesm`, downloadsItems);
+
+//   // Add downloads to each clip
+//   let clipsWithDownloads = recentClips;
+
+//   if (downloadsItems && downloadsItems.length > 0) {
+//      clipsWithDownloads = recentClips.map((clip: Clip) => ({
+//       ...clip,
+//       downloads:
+//         downloadsItems.find((download: any) => download.Id === clip.Id)
+//           ?.Count || 0,
+//     }));
+
+//     // console.log(`ACTION: clips with downloads`, clipsWithDownloads);
+//   }
+
+//   return clipsWithDownloads;
+// }
 
 
 // ----------------------------- ANALYTICS ----------------------------
