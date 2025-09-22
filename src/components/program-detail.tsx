@@ -317,37 +317,37 @@ export default function ProgramDetail({
   }
 
   return (
-    <div className="h-screen bg-background p-6 flex flex-col">
-      <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl w-full mx-auto">
         {/* Header */}
-        <header className="mb-4 flex-shrink-0">
+        <header className="mb-4">
           <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 flex-shrink-0"
               aria-label="Go back"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
             </Button>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-balance line-clamp-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-balance line-clamp-2 min-w-0">
               {program.Name}
             </h1>
           </div>
         </header>
 
         {/* Program Info - Desktop only */}
-        <div className="hidden lg:flex flex-col items-center gap-4 pb-6 flex-shrink-0">
+        <div className="hidden lg:flex flex-col items-center gap-4 pb-6">
           <ProgramArtwork program={program} size="large" />
-          <div className="text-muted-foreground text-center w-full text-sm">
+          <div className="text-muted-foreground text-center w-full text-sm max-w-2xl">
             {program.Description || 'No description available'}
           </div>
         </div>
 
         {/* Mobile Program Info */}
-        <div className="flex lg:hidden items-start gap-4 p-4 bg-card rounded-lg mb-4 flex-shrink-0">
+        <div className="flex lg:hidden items-start gap-4 p-4 bg-card rounded-lg mb-4">
           <ProgramArtwork program={program} size="small" />
           <div className="flex-1 min-w-0">
             <p className="text-sm text-muted-foreground line-clamp-3">
@@ -358,32 +358,29 @@ export default function ProgramDetail({
 
         {program && <ProgramAnalytics program={program} />}
 
-        {/* Main Content - Two Column Layout */}
-        <div className="flex-1 flex gap-8 min-h-0">
+        {/* Main Content - Responsive Layout with natural height */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Left Column: Playlists */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-              <h2 className="text-2xl font-semibold text-foreground">
+          <div className="lg:w-1/2 xl:w-[480px] 2xl:w-[520px]">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl lg:text-2xl font-semibold text-foreground">
                 Playlists
               </h2>
               {playlistsLoading && <LoadingDots />}
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="space-y-2">{renderPlaylistsContent()}</div>
-            </div>
+            <div className="space-y-2">{renderPlaylistsContent()}</div>
           </div>
-
           {/* Right Column: Clips */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-              <h2 className="text-2xl font-semibold text-foreground">
+          <div className="lg:w-1/2 xl:flex-1">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl lg:text-2xl font-semibold text-foreground truncate">
                 Latest {selectedPlaylistTitle} Clips
               </h2>
               {clipsLoading && <LoadingDots />}
             </div>
 
-            <div className="flex-1 overflow-y-auto">{renderClipsContent()}</div>
+            <div>{renderClipsContent()}</div>
           </div>
         </div>
       </div>
