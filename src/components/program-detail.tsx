@@ -110,20 +110,21 @@ const useClips = () => {
   const [loading, setLoading] = useState(false);
   const [clips, setClips] = useState<Clips>([]);
   const [currentPlaylistId, setCurrentPlaylistId] = useState<string | null>(null);
-  const [initiallyLoaded, setInitiallyLoaded] = useState(false);
   const [loadedPlaylistIds, setLoadedPlaylistIds] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string | null>(null);
 
   const fetchClips = useCallback(async (playlistId: string) => {
     if (!playlistId) return;
 
-    // Clear clips immediately when switching playlists
+    // Clear clips and error immediately when switching playlists
     if (currentPlaylistId !== playlistId) {
       setClips([]);
-      setInitiallyLoaded(false); // Reset for new playlist
+      setError(null);
     }
 
     setCurrentPlaylistId(playlistId);
     setLoading(true);
+    setError(null);
 
     try {
       const response = await fetch(
@@ -131,31 +132,55 @@ const useClips = () => {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch clips: ${response.statusText}`);
+        // Handle different error types
+        let errorMessage = `Failed to fetch clips: ${response.statusText}`;
+        if (response.status === 500) {
+          errorMessage = 'Server error occurred. This may be due to external API rate limits. Please try again in a moment.';
+        } else if (response.status === 429) {
+          errorMessage = 'Rate limit exceeded. Please wait before trying again.';
+        }
+        throw new Error(errorMessage);
       }
 
       const clipsData = await response.json();
       setClips(clipsData);
       setLoadedPlaylistIds(prev => new Set([...prev, playlistId]));
+      setError(null); // Clear any previous errors on success
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch clips';
       console.error('Failed to fetch clips:', error);
+      setError(errorMessage);
       setClips([]);
+      // Don't add to loadedPlaylistIds on error so retry is possible
     } finally {
       setLoading(false);
-      setInitiallyLoaded(true);
     }
   }, [currentPlaylistId]);
 
-  // Check if current playlist has been loaded
-  const currentPlaylistLoaded = currentPlaylistId ? loadedPlaylistIds.has(currentPlaylistId) : false;
+  // Check if current playlist has been loaded successfully
+  const hasLoadedCurrentPlaylist = currentPlaylistId ? loadedPlaylistIds.has(currentPlaylistId) : false;
+
+  const retryFetchClips = useCallback(() => {
+    if (currentPlaylistId) {
+      // Remove from loaded set to allow retry
+      setLoadedPlaylistIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(currentPlaylistId);
+        return newSet;
+      });
+      fetchClips(currentPlaylistId);
+    }
+  }, [currentPlaylistId, fetchClips]);
 
   return {
     clips,
     loading,
+    error,
     fetchClips,
     currentPlaylistId,
-    initiallyLoaded: currentPlaylistLoaded, 
-    refetchClips: () => clips && clips.length > 0 && setClips([...clips]),
+    hasLoadedCurrentPlaylist,
+    retryFetchClips,
+    refetchClips: () => currentPlaylistId && fetchClips(currentPlaylistId),
   };
 };
 
@@ -192,18 +217,23 @@ export default function ProgramDetail({
   network,
   onBack,
 }: ProgramDetailProps) {
+  
   const {
     playlists,
     loading: playlistsLoading,
     error,
     refetch: refetchPlaylists,
   } = usePlaylists(program, network);
+
   const {
     clips,
     loading: clipsLoading,
+    error: clipsError,
     fetchClips,
-    initiallyLoaded: clipsInitiallyLoaded,
+    hasLoadedCurrentPlaylist,
+    retryFetchClips,
   } = useClips();
+
 
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
     null,
@@ -311,29 +341,47 @@ export default function ProgramDetail({
   // Render clips content
   const renderClipsContent = () => {
 
-    // Debug logging - remove after fixing
-  console.log('renderClipsContent:', {
-    clipsLoading,
-    selectedPlaylistId,
-    clipsInitiallyLoaded,
-    filteredClipsLength: filteredClips?.length,
-    clipsLength: clips?.length
-  });
+    // Show loading if clips are loading OR if we have a playlist selected but haven't loaded it yet
+    const shouldShowLoading = clipsLoading || (selectedPlaylistId && !hasLoadedCurrentPlaylist && !clipsError);
+    
+    if (shouldShowLoading) {
+      return <ClipSkeleton />;
+    }
 
+    // Show error state with retry option
+    if (clipsError) {
+      return (
+        <div className="text-center py-8 space-y-4">
+          <p className="text-red-500 text-sm">{clipsError}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={retryFetchClips}
+            disabled={clipsLoading}
+          >
+            {clipsLoading ? 'Retrying...' : 'Retry'}
+          </Button>
+        </div>
+      );
+    }
 
+    // Show message when no playlist is selected
+    if (!selectedPlaylistId) {
+      return (
+        <p className="text-muted-foreground text-center py-8">
+          Select a playlist to view clips
+        </p>
+      );
+    }
 
-    if (clipsLoading || (selectedPlaylistId && !clipsInitiallyLoaded)) {
-    return <ClipSkeleton />;
-  }
-
-  // Add safety check for undefined filteredClips
-  if (!filteredClips || filteredClips.length === 0) {
-    return (
-      <p className="text-muted-foreground text-center py-8">
-        No clips found for this playlist
-      </p>
-    );
-  }
+    // Show message when no clips found for selected playlist
+    if (!filteredClips || filteredClips.length === 0) {
+      return (
+        <p className="text-muted-foreground text-center py-8">
+          No clips found for this playlist
+        </p>
+      );
+    }
 
     return (
       <div className="space-y-2">
