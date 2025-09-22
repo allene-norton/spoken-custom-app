@@ -239,12 +239,28 @@ export async function getClipDownloadsByTimeGrouping(
 export async function getPlaylistsByProgram(
   programId?: string | undefined | null,
 ) {
-  const response = await fetch(
-    `${OMNY_BASE_URI}/programs/${programId}/playlists`,
-    options,
-  );
-  const playlists = await response.json();
-  return playlists.Items;
+  if (!programId) {
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `${OMNY_BASE_URI}/programs/${programId}/playlists`,
+      options,
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const playlists = await response.json();
+    
+    // Ensure we return serializable data
+    return playlists.Items || [];
+  } catch (error) {
+    console.error('Error fetching playlists:', error);
+    return [];
+  }
 }
 
 
