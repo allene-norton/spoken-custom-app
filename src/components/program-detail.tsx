@@ -445,7 +445,7 @@ export default function ProgramDetail({
           <div className="w-full max-w-3xl">
             <div className="bg-card border rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 text-center">
-                About This Program
+                Program Description
               </h3>
               <div
                 className="text-muted-foreground prose prose-gray dark:prose-invert prose-sm mx-auto prose-p:text-sm prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline text-center"
