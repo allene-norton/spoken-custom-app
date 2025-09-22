@@ -371,22 +371,43 @@ export default function ProgramDetail({
         </header>
 
         {/* Program Info - Desktop only */}
-        <div className="hidden lg:flex flex-col items-center gap-4 pb-6">
+        <div className="hidden lg:flex flex-col items-center gap-6 pb-6">
           <ProgramArtwork program={program} size="large" />
-          <div
-            className="text-muted-foreground text-center w-full text-sm max-w-2xl prose prose-sm prose-slate dark:prose-invert"
-            dangerouslySetInnerHTML={{
-              __html: program.DescriptionHtml || 'No description available',
-            }}
-          />
+
+          {/* Description Card */}
+          <div className="w-full max-w-3xl">
+            <div className="bg-card border rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                About This Program
+              </h3>
+              <div
+                className="text-muted-foreground prose prose-gray dark:prose-invert prose-sm mx-auto prose-p:text-sm prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline text-center"
+                dangerouslySetInnerHTML={{
+                  __html: program.DescriptionHtml || 'No description available',
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Mobile Program Info */}
-        <div className="flex lg:hidden items-start gap-4 p-4 bg-card rounded-lg mb-4">
-          <ProgramArtwork program={program} size="small" />
-          <div className="flex-1 min-w-0">
+        <div className="lg:hidden space-y-4">
+          {/* Program artwork and basic info */}
+          <div className="flex items-start gap-4 p-4 bg-card rounded-lg border shadow-sm">
+            <ProgramArtwork program={program} size="small" />
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold text-lg mb-1 line-clamp-2">
+                {program.Name}
+              </h2>
+              <p className="text-sm text-muted-foreground">Program Details</p>
+            </div>
+          </div>
+
+          {/* Description Card */}
+          <div className="bg-card border rounded-lg p-4 shadow-sm">
+            <h3 className="font-semibold mb-3">About</h3>
             <div
-              className="text-sm text-muted-foreground line-clamp-3 prose prose-sm prose-slate dark:prose-invert"
+              className="text-sm text-muted-foreground prose prose-gray dark:prose-invert prose-sm max-w-none prose-p:text-sm prose-p:leading-relaxed prose-p:mb-2 prose-strong:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
               dangerouslySetInnerHTML={{
                 __html: program.DescriptionHtml || 'No description available',
               }}

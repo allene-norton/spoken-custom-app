@@ -82,12 +82,13 @@ export default function ProgramAnalytics({ program }: ProgramAnalyticsProps) {
     }
   }, [startDate, endDate, interval, timezone, program?.Id]);
 
-  const totalDownloads = data.reduce((sum, item) => sum + item.Downloads, 0);
-
-  const chartData = data.map((item) => ({
-    ...item,
-    period: new Date(item.From).toLocaleDateString(),
-  }));
+  const totalDownloads =
+    data?.reduce((sum, item) => sum + item.Downloads, 0) || 0;
+  const chartData =
+    data?.map((item) => ({
+      ...item,
+      period: new Date(item.From).toLocaleDateString(),
+    })) || [];
 
   return (
     <div className="w-full mb-8">
