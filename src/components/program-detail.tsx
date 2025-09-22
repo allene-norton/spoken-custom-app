@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import PlaylistCard from '@/components/playlist-card';
 import ClipItem from './clip-item';
 import ClipDetail from '@/components/clip-detail';
+import ProgramAnalytics from '@/components/programAnalytics';
 import type {
   Program,
   Playlists,
@@ -108,32 +109,90 @@ const usePlaylists = (program: Program, network?: Network) => {
 const useClips = () => {
   const [loading, setLoading] = useState(false);
   const [clips, setClips] = useState<Clips>([]);
+  const [currentPlaylistId, setCurrentPlaylistId] = useState<string | null>(
+    null,
+  );
+  const [loadedPlaylistIds, setLoadedPlaylistIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchClips = useCallback(async (playlistId: string) => {
-    if (!playlistId) return;
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to fetch clips: ${response.statusText}`);
+  const fetchClips = useCallback(
+    async (playlistId: string) => {
+      if (!playlistId) return;
+
+      // Clear clips and error immediately when switching playlists
+      if (currentPlaylistId !== playlistId) {
+        setClips([]);
+        setError(null);
       }
-      const clipsData = await response.json();
-      setClips(clipsData);
-    } catch (error) {
-      console.error('Failed to fetch clips:', error);
-      setClips([]);
-    } finally {
-      setLoading(false);
+
+      setCurrentPlaylistId(playlistId);
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
+        );
+
+        if (!response.ok) {
+          // Handle different error types
+          let errorMessage = `Failed to fetch clips: ${response.statusText}`;
+          if (response.status === 500) {
+            errorMessage =
+              'Server error occurred. This may be due to external API rate limits. Please try again in a moment.';
+          } else if (response.status === 429) {
+            errorMessage =
+              'Rate limit exceeded. Please wait before trying again.';
+          }
+          throw new Error(errorMessage);
+        }
+
+        const clipsData = await response.json();
+        setClips(clipsData);
+        setLoadedPlaylistIds((prev) => new Set([...prev, playlistId]));
+        setError(null); // Clear any previous errors on success
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to fetch clips';
+        console.error('Failed to fetch clips:', error);
+        setError(errorMessage);
+        setClips([]);
+        // Don't add to loadedPlaylistIds on error so retry is possible
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentPlaylistId],
+  );
+
+  // Check if current playlist has been loaded successfully
+  const hasLoadedCurrentPlaylist = currentPlaylistId
+    ? loadedPlaylistIds.has(currentPlaylistId)
+    : false;
+
+  const retryFetchClips = useCallback(() => {
+    if (currentPlaylistId) {
+      // Remove from loaded set to allow retry
+      setLoadedPlaylistIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(currentPlaylistId);
+        return newSet;
+      });
+      fetchClips(currentPlaylistId);
     }
-  }, []);
+  }, [currentPlaylistId, fetchClips]);
 
   return {
     clips,
     loading,
+    error,
     fetchClips,
-    refetchClips: () => clips && clips.length > 0 && setClips([...clips]),
+    currentPlaylistId,
+    hasLoadedCurrentPlaylist,
+    retryFetchClips,
+    refetchClips: () => currentPlaylistId && fetchClips(currentPlaylistId),
   };
 };
 
@@ -176,7 +235,15 @@ export default function ProgramDetail({
     error,
     refetch: refetchPlaylists,
   } = usePlaylists(program, network);
-  const { clips, loading: clipsLoading, fetchClips } = useClips();
+
+  const {
+    clips,
+    loading: clipsLoading,
+    error: clipsError,
+    fetchClips,
+    hasLoadedCurrentPlaylist,
+    retryFetchClips,
+  } = useClips();
 
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
     null,
@@ -184,6 +251,7 @@ export default function ProgramDetail({
   const [selectedPlaylistTitle, setSelectedPlaylistTitle] =
     useState<string>('');
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
+  const memoizedProgram = useMemo(() => program, [program.Id, program.Name]);
 
   // Refresh function to refetch all data
   const refreshProgramData = useCallback(async () => {
@@ -283,11 +351,43 @@ export default function ProgramDetail({
 
   // Render clips content
   const renderClipsContent = () => {
-    if (clipsLoading) {
+    // Show loading if clips are loading OR if we have a playlist selected but haven't loaded it yet
+    const shouldShowLoading =
+      clipsLoading ||
+      (selectedPlaylistId && !hasLoadedCurrentPlaylist && !clipsError);
+
+    if (shouldShowLoading) {
       return <ClipSkeleton />;
     }
 
-    if (filteredClips?.length === 0) {
+    // Show error state with retry option
+    if (clipsError) {
+      return (
+        <div className="text-center py-8 space-y-4">
+          <p className="text-red-500 text-sm">{clipsError}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={retryFetchClips}
+            disabled={clipsLoading}
+          >
+            {clipsLoading ? 'Retrying...' : 'Retry'}
+          </Button>
+        </div>
+      );
+    }
+
+    // Show message when no playlist is selected
+    if (!selectedPlaylistId) {
+      return (
+        <p className="text-muted-foreground text-center py-8">
+          Select a playlist to view clips
+        </p>
+      );
+    }
+
+    // Show message when no clips found for selected playlist
+    if (!filteredClips || filteredClips.length === 0) {
       return (
         <p className="text-muted-foreground text-center py-8">
           No clips found for this playlist
@@ -316,71 +416,97 @@ export default function ProgramDetail({
   }
 
   return (
-    <div className="h-screen bg-background p-6 flex flex-col">
-      <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl w-full mx-auto">
         {/* Header */}
-        <header className="mb-4 flex-shrink-0">
+        <header className="mb-4">
           <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 flex-shrink-0"
               aria-label="Go back"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
             </Button>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-balance line-clamp-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground text-balance line-clamp-2 min-w-0">
               {program.Name}
             </h1>
           </div>
         </header>
 
         {/* Program Info - Desktop only */}
-        <div className="hidden lg:flex flex-col items-center gap-4 pb-6 flex-shrink-0">
+        <div className="hidden lg:flex flex-col items-center gap-6 pb-6">
           <ProgramArtwork program={program} size="large" />
-          <div className="text-muted-foreground text-center w-full text-sm">
-            {program.Description || 'No description available'}
+
+          {/* Description Card */}
+          <div className="w-full max-w-3xl">
+            <div className="bg-card border rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                About This Program
+              </h3>
+              <div
+                className="text-muted-foreground prose prose-gray dark:prose-invert prose-sm mx-auto prose-p:text-sm prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline text-center"
+                dangerouslySetInnerHTML={{
+                  __html: program.DescriptionHtml || 'No description available',
+                }}
+              />
+            </div>
           </div>
         </div>
 
         {/* Mobile Program Info */}
-        <div className="flex lg:hidden items-start gap-4 p-4 bg-card rounded-lg mb-4 flex-shrink-0">
-          <ProgramArtwork program={program} size="small" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-muted-foreground line-clamp-3">
-              {program.Description || 'No description available'}
-            </p>
+        <div className="lg:hidden space-y-4">
+          {/* Program artwork and basic info */}
+          <div className="flex items-start gap-4 p-4 bg-card rounded-lg border shadow-sm">
+            <ProgramArtwork program={program} size="small" />
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold text-lg mb-1 line-clamp-2">
+                {program.Name}
+              </h2>
+              <p className="text-sm text-muted-foreground">Program Details</p>
+            </div>
+          </div>
+
+          {/* Description Card */}
+          <div className="bg-card border rounded-lg p-4 shadow-sm">
+            <h3 className="font-semibold mb-3">About</h3>
+            <div
+              className="text-sm text-muted-foreground prose prose-gray dark:prose-invert prose-sm max-w-none prose-p:text-sm prose-p:leading-relaxed prose-p:mb-2 prose-strong:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
+              dangerouslySetInnerHTML={{
+                __html: program.DescriptionHtml || 'No description available',
+              }}
+            />
           </div>
         </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className="flex-1 flex gap-8 min-h-0">
+        {memoizedProgram && <ProgramAnalytics program={memoizedProgram} />}
+
+        {/* Main Content - Responsive Layout with natural height */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Left Column: Playlists */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-              <h2 className="text-2xl font-semibold text-foreground">
+          <div className="lg:w-1/2 xl:w-[480px] 2xl:w-[520px]">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl lg:text-2xl font-semibold text-foreground">
                 Playlists
               </h2>
               {playlistsLoading && <LoadingDots />}
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="space-y-2">{renderPlaylistsContent()}</div>
-            </div>
+            <div className="space-y-2">{renderPlaylistsContent()}</div>
           </div>
-
           {/* Right Column: Clips */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-              <h2 className="text-2xl font-semibold text-foreground">
+          <div className="lg:w-1/2 xl:flex-1">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl lg:text-2xl font-semibold text-foreground truncate">
                 Latest {selectedPlaylistTitle} Clips
               </h2>
               {clipsLoading && <LoadingDots />}
             </div>
 
-            <div className="flex-1 overflow-y-auto">{renderClipsContent()}</div>
+            <div>{renderClipsContent()}</div>
           </div>
         </div>
       </div>

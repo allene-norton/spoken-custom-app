@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Network, Download, DownloadsResponse } from '@/app/types';
+import type { Clip, Download, DownloadsResponse } from '@/app/types';
 import {
   LineChart,
   Line,
@@ -21,11 +21,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface AnalyticsProps {
-  network?: Network;
+interface ClipAnalyticsProps {
+  clip?: Clip;
 }
 
-export default function Analytics({ network }: AnalyticsProps) {
+export default function ClipAnalytics({ clip }: ClipAnalyticsProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [interval, setInterval] = useState('Daily');
@@ -53,18 +53,18 @@ export default function Analytics({ network }: AnalyticsProps) {
     setError(null);
 
     try {
-      if (!network) {
-        throw new Error('Network not selected');
+      if (!clip) {
+        throw new Error('Clip not selected');
       }
       const params = new URLSearchParams({
         startDate,
         endDate,
         interval,
         timezone,
-        networkId: network.Id,
+        clipId: clip.Id,
       });
 
-      const response = await fetch(`/api/networkAnalytics?${params}`);
+      const response = await fetch(`/api/clipAnalytics?${params}`);
       if (!response.ok) throw new Error('Failed to fetch data');
 
       const result: DownloadsResponse = await response.json();
@@ -80,7 +80,7 @@ export default function Analytics({ network }: AnalyticsProps) {
     if (startDate && endDate) {
       fetchData();
     }
-  }, [startDate, endDate, interval, timezone, network?.Id]);
+  }, [startDate, endDate, interval, timezone, clip?.Id]);
 
   const totalDownloads =
     data?.reduce((sum, item) => sum + item.Downloads, 0) || 0;
@@ -92,7 +92,7 @@ export default function Analytics({ network }: AnalyticsProps) {
 
   return (
     <div className="w-full mb-8">
-      <h2 className="text-2xl font-semibold text-foreground mb-4">Analytics</h2>
+      <h2 className="text-2xl font-semibold text-foreground mb-4">Clip Analytics</h2>
 
       {/* Control Bar */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 bg-card rounded-lg border">
