@@ -109,61 +109,73 @@ const usePlaylists = (program: Program, network?: Network) => {
 const useClips = () => {
   const [loading, setLoading] = useState(false);
   const [clips, setClips] = useState<Clips>([]);
-  const [currentPlaylistId, setCurrentPlaylistId] = useState<string | null>(null);
-  const [loadedPlaylistIds, setLoadedPlaylistIds] = useState<Set<string>>(new Set());
+  const [currentPlaylistId, setCurrentPlaylistId] = useState<string | null>(
+    null,
+  );
+  const [loadedPlaylistIds, setLoadedPlaylistIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [error, setError] = useState<string | null>(null);
 
-  const fetchClips = useCallback(async (playlistId: string) => {
-    if (!playlistId) return;
+  const fetchClips = useCallback(
+    async (playlistId: string) => {
+      if (!playlistId) return;
 
-    // Clear clips and error immediately when switching playlists
-    if (currentPlaylistId !== playlistId) {
-      setClips([]);
-      setError(null);
-    }
-
-    setCurrentPlaylistId(playlistId);
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
-      );
-
-      if (!response.ok) {
-        // Handle different error types
-        let errorMessage = `Failed to fetch clips: ${response.statusText}`;
-        if (response.status === 500) {
-          errorMessage = 'Server error occurred. This may be due to external API rate limits. Please try again in a moment.';
-        } else if (response.status === 429) {
-          errorMessage = 'Rate limit exceeded. Please wait before trying again.';
-        }
-        throw new Error(errorMessage);
+      // Clear clips and error immediately when switching playlists
+      if (currentPlaylistId !== playlistId) {
+        setClips([]);
+        setError(null);
       }
 
-      const clipsData = await response.json();
-      setClips(clipsData);
-      setLoadedPlaylistIds(prev => new Set([...prev, playlistId]));
-      setError(null); // Clear any previous errors on success
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch clips';
-      console.error('Failed to fetch clips:', error);
-      setError(errorMessage);
-      setClips([]);
-      // Don't add to loadedPlaylistIds on error so retry is possible
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPlaylistId]);
+      setCurrentPlaylistId(playlistId);
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `/api/playlistClips?playlistId=${encodeURIComponent(playlistId)}`,
+        );
+
+        if (!response.ok) {
+          // Handle different error types
+          let errorMessage = `Failed to fetch clips: ${response.statusText}`;
+          if (response.status === 500) {
+            errorMessage =
+              'Server error occurred. This may be due to external API rate limits. Please try again in a moment.';
+          } else if (response.status === 429) {
+            errorMessage =
+              'Rate limit exceeded. Please wait before trying again.';
+          }
+          throw new Error(errorMessage);
+        }
+
+        const clipsData = await response.json();
+        setClips(clipsData);
+        setLoadedPlaylistIds((prev) => new Set([...prev, playlistId]));
+        setError(null); // Clear any previous errors on success
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to fetch clips';
+        console.error('Failed to fetch clips:', error);
+        setError(errorMessage);
+        setClips([]);
+        // Don't add to loadedPlaylistIds on error so retry is possible
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentPlaylistId],
+  );
 
   // Check if current playlist has been loaded successfully
-  const hasLoadedCurrentPlaylist = currentPlaylistId ? loadedPlaylistIds.has(currentPlaylistId) : false;
+  const hasLoadedCurrentPlaylist = currentPlaylistId
+    ? loadedPlaylistIds.has(currentPlaylistId)
+    : false;
 
   const retryFetchClips = useCallback(() => {
     if (currentPlaylistId) {
       // Remove from loaded set to allow retry
-      setLoadedPlaylistIds(prev => {
+      setLoadedPlaylistIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(currentPlaylistId);
         return newSet;
@@ -217,7 +229,6 @@ export default function ProgramDetail({
   network,
   onBack,
 }: ProgramDetailProps) {
-  
   const {
     playlists,
     loading: playlistsLoading,
@@ -234,13 +245,13 @@ export default function ProgramDetail({
     retryFetchClips,
   } = useClips();
 
-
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
     null,
   );
   const [selectedPlaylistTitle, setSelectedPlaylistTitle] =
     useState<string>('');
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
+  const memoizedProgram = useMemo(() => program, [program.Id, program.Name]);
 
   // Refresh function to refetch all data
   const refreshProgramData = useCallback(async () => {
@@ -340,10 +351,11 @@ export default function ProgramDetail({
 
   // Render clips content
   const renderClipsContent = () => {
-
     // Show loading if clips are loading OR if we have a playlist selected but haven't loaded it yet
-    const shouldShowLoading = clipsLoading || (selectedPlaylistId && !hasLoadedCurrentPlaylist && !clipsError);
-    
+    const shouldShowLoading =
+      clipsLoading ||
+      (selectedPlaylistId && !hasLoadedCurrentPlaylist && !clipsError);
+
     if (shouldShowLoading) {
       return <ClipSkeleton />;
     }
@@ -353,9 +365,9 @@ export default function ProgramDetail({
       return (
         <div className="text-center py-8 space-y-4">
           <p className="text-red-500 text-sm">{clipsError}</p>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={retryFetchClips}
             disabled={clipsLoading}
           >
@@ -470,7 +482,7 @@ export default function ProgramDetail({
           </div>
         </div>
 
-        {program && <ProgramAnalytics program={program} />}
+        {memoizedProgram && <ProgramAnalytics program={memoizedProgram} />}
 
         {/* Main Content - Responsive Layout with natural height */}
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
