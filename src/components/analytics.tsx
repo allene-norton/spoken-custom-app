@@ -82,12 +82,13 @@ export default function Analytics({ network }: AnalyticsProps) {
     }
   }, [startDate, endDate, interval, timezone, network?.Id]);
 
-  const totalDownloads = data.reduce((sum, item) => sum + item.Downloads, 0);
-
-  const chartData = data.map((item) => ({
-    ...item,
-    period: new Date(item.From).toLocaleDateString(),
-  }));
+  const totalDownloads =
+    data?.reduce((sum, item) => sum + item.Downloads, 0) || 0;
+  const chartData =
+    data?.map((item) => ({
+      ...item,
+      period: new Date(item.From).toLocaleDateString(),
+    })) || [];
 
   return (
     <div className="w-full mb-8">

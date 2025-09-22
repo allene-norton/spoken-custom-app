@@ -341,18 +341,24 @@ export default function ProgramDetail({
         {/* Program Info - Desktop only */}
         <div className="hidden lg:flex flex-col items-center gap-4 pb-6">
           <ProgramArtwork program={program} size="large" />
-          <div className="text-muted-foreground text-center w-full text-sm max-w-2xl">
-            {program.Description || 'No description available'}
-          </div>
+          <div
+            className="text-muted-foreground text-center w-full text-sm max-w-2xl prose prose-sm prose-slate dark:prose-invert"
+            dangerouslySetInnerHTML={{
+              __html: program.DescriptionHtml || 'No description available',
+            }}
+          />
         </div>
 
         {/* Mobile Program Info */}
         <div className="flex lg:hidden items-start gap-4 p-4 bg-card rounded-lg mb-4">
           <ProgramArtwork program={program} size="small" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-muted-foreground line-clamp-3">
-              {program.Description || 'No description available'}
-            </p>
+            <div
+              className="text-sm text-muted-foreground line-clamp-3 prose prose-sm prose-slate dark:prose-invert"
+              dangerouslySetInnerHTML={{
+                __html: program.DescriptionHtml || 'No description available',
+              }}
+            />
           </div>
         </div>
 
