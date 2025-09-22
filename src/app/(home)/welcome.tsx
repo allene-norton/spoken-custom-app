@@ -154,9 +154,9 @@ export function Welcome({
 
   return (
     <>
-      <div className="h-screen bg-background p-6 flex flex-col overflow-hidden">
-        <div className="max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
-          <header className="mb-4 flex-shrink-0">
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <header className="mb-4">
             <h1 className="text-3xl font-bold text-foreground text-balance">
               {company?.name}
             </h1>
@@ -165,10 +165,10 @@ export function Welcome({
           {network && <Analytics network={network} />}
 
           {/* Main Content */}
-          <div className="flex-1 flex gap-8 min-h-0">
+          <div className="flex gap-8">
             {/* Left Column: Programs */}
-            <div className="flex-1 flex flex-col min-h-0">
-              <h2 className="text-2xl font-semibold text-foreground mb-4 flex-shrink-0">
+            <div className="flex-1 flex flex-col">
+              <h2 className="text-2xl font-semibold text-foreground mb-4">
                 Programs
               </h2>
 
