@@ -10,6 +10,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import type { Clip, PublishState, Visibility } from '@/app/types';
 import parse from 'html-react-parser';
 import { RichTextEditor } from '@/components/richtexteditor';
+import ClipAnalytics from '@/components/clipAnalytics';
 
 interface ClipDetailProps {
   clip: Clip;
@@ -210,6 +211,9 @@ export default function ClipDetail({
             </div>
           </div>
         </div>
+
+        {/* Analytics content */}
+        {clip && <ClipAnalytics clip={clip} />}
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 overflow-hidden mb-8">

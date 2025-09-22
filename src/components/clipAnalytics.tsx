@@ -61,7 +61,7 @@ export default function ClipAnalytics({ clip }: ClipAnalyticsProps) {
         endDate,
         interval,
         timezone,
-        clipID: clip.Id,
+        clipId: clip.Id,
       });
 
       const response = await fetch(`/api/clipAnalytics?${params}`);
@@ -91,7 +91,7 @@ export default function ClipAnalytics({ clip }: ClipAnalyticsProps) {
 
   return (
     <div className="w-full mb-8">
-      <h2 className="text-2xl font-semibold text-foreground mb-4">Analytics</h2>
+      <h2 className="text-2xl font-semibold text-foreground mb-4">Clip Analytics</h2>
 
       {/* Control Bar */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 bg-card rounded-lg border">
