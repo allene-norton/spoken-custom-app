@@ -1,10 +1,13 @@
 import { copilotApi } from 'copilot-node-sdk';
 import { getSession } from '@/utils/session';
+import { Suspense } from 'react';
+
 
 import { Welcome } from '@/app/(home)/welcome';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
 import { ComingSoon } from '@/components/coming-soon';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
   getNetworkByName,
   getProgramsByNetwork,
@@ -89,7 +92,9 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <TokenGate searchParams={searchParams}>
-      <Content searchParams={searchParams} />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Content searchParams={searchParams} />
+      </Suspense>
     </TokenGate>
   );
 }
