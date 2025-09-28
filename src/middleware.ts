@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   // If you have a custom domain add it below to the
   // space separated frame-ancestors list.
   const cspHeader = `
-    frame-ancestors https://dashboard.copilot.com/ https://*.copilot.app/;
+    frame-ancestors https://dashboard.copilot.app/ https://*.copilot.app/ https://dashboard.assembly.com https://*.spoken.so;
     block-all-mixed-content;
     upgrade-insecure-requests;
 `;
