@@ -30,7 +30,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   const session = await copilot.getTokenPayload?.();
 
   // Retrieve company from Copilot/Assembly
-  const listCompanies = await copilot.listCompanies({ name: 'Grumble' });
+  const listCompanies = await copilot.listCompanies({ name: 'Nearly Media' });
   // console.log({ workspace, session });
   const company = listCompanies.data?.[0];
 
