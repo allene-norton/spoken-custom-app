@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,12 +23,16 @@ export default function ClipDetail({
   onBack,
   onClipUpdated,
 }: ClipDetailProps) {
+  //------States----------
   const [title, setTitle] = useState(clip.Title);
   const [descriptionHtml, setDescriptionHtml] = useState(
     clip.DescriptionHtml || '',
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [imageSrc, setImageSrc] = useState('/placeholder.svg');
+  const [imageLoading, setImageLoading] = useState(true);
 
+  //-------Formatting---------
   const formatDuration = (seconds?: number) => {
     if (!seconds) return '00:00:00';
     const hours = Math.floor(seconds / 3600);
@@ -68,6 +72,7 @@ export default function ClipDetail({
     }
   };
 
+  // ------- Update handler--------
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -103,6 +108,30 @@ export default function ClipDetail({
       setIsSaving(false);
     }
   };
+
+  // -------Image placeholder--------
+
+  useEffect(() => {
+    const validateImage = () => {
+      setImageLoading(true);
+      const img = new Image();
+      img.onload = () => {
+        setImageSrc(clip.Urls.ImagePublicUrl);
+        setImageLoading(false);
+      };
+      img.onerror = () => {
+        setImageSrc('/placeholder.svg');
+        setImageLoading(false);
+      };
+      img.src = clip.Urls.ImagePublicUrl;
+    };
+
+    if (clip.Urls.ImagePublicUrl) {
+      validateImage();
+    } else {
+      setImageLoading(false);
+    }
+  }, [clip.Urls.ImagePublicUrl]);
 
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
@@ -145,13 +174,19 @@ export default function ClipDetail({
                 </div>
               </div>
             </div>
-            {clip.Urls?.ImagePublicUrl && (
+            {(clip.Urls?.ImagePublicUrl || imageSrc) && (
               <div className="w-1/12 flex-shrink-0">
-                <img
-                  src={clip.Urls.ImagePublicUrl}
-                  alt={clip.Title}
-                  className="w-full h-auto rounded-md object-cover"
-                />
+                {imageLoading ? (
+                  <div className="w-full h-16 bg-gray-200 animate-pulse rounded-md flex items-center justify-center">
+                    <span className="text-gray-400 text-xs">Loading...</span>
+                  </div>
+                ) : (
+                  <img
+                    src={imageSrc}
+                    alt={clip.Title}
+                    className="w-full h-auto rounded-md object-cover"
+                  />
+                )}
               </div>
             )}
           </div>
