@@ -34,7 +34,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   // console.log({ workspace, session });
   const company = listCompanies.data?.[0];
 
-   if (!company) {
+   if (!company || !session) {
     return <ComingSoon />;
   }
 
