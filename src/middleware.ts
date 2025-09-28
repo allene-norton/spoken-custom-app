@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
     style-src 'self' 'nonce-${nonce}';
-    img-src 'self' blob: data:;
+    img-src *;
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -21,6 +21,14 @@ export function middleware(request: NextRequest) {
     block-all-mixed-content;
     upgrade-insecure-requests;
 `;
+
+/* removals to fix CSP 
+    img-src 'self' blob: data:;
+
+
+
+
+*/
   // Replace newline characters and spaces
   const contentSecurityPolicyHeaderValue = cspHeader
     .replace(/\s{2,}/g, ' ')
