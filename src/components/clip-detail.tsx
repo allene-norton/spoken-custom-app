@@ -23,6 +23,8 @@ export default function ClipDetail({
   onBack,
   onClipUpdated,
 }: ClipDetailProps) {
+
+
   //------States----------
   const [title, setTitle] = useState(clip.Title);
   const [descriptionHtml, setDescriptionHtml] = useState(
@@ -133,6 +135,8 @@ export default function ClipDetail({
     }
   }, [clip.Urls.ImagePublicUrl]);
 
+  console.log(clip)
+
   return (
     <div className="h-screen bg-background p-6 flex flex-col">
       <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col min-w-0">
@@ -236,6 +240,14 @@ export default function ClipDetail({
               </Label>
               <p className="mt-1 text-sm">{formatDate(clip.PublishedUtc)}</p>
             </div>
+            {clip.VisibleAtUtc && (
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Scheduled Publish Date
+                </Label>
+                <p className="mt-1 text-sm">{formatDate(clip.VisibleAtUtc)}</p>
+              </div>
+            )}
           </div>
         </div>
 
