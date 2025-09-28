@@ -1,4 +1,5 @@
 import { copilotApi } from 'copilot-node-sdk';
+import { getSession } from '@/utils/session';
 
 import { Welcome } from '@/app/(home)/welcome';
 import { TokenGate } from '@/components/TokenGate';
@@ -28,10 +29,9 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   });
   const workspace = await copilot.retrieveWorkspace();
 
-
   let session;
   try {
-    session = await copilot.getTokenPayload?.();
+    session = await getSession(searchParams);
     console.log(`SESSION:`, session);
   } catch (error) {
     console.error('Session token error:', error);
@@ -39,11 +39,14 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   }
 
   // Retrieve company from Copilot/Assembly
-  const listCompanies = await copilot.listCompanies({ name: session?.companyId });
+  const retrieveCompany = session?.company || null;
+  const listCompanies = await copilot.listCompanies({
+    name: retrieveCompany?.name,
+  });
   // console.log({ workspace, session });
   const company = listCompanies.data?.[0];
 
-   if (!company || !session) {
+  if (!company || !session) {
     return <ComingSoon />;
   }
 
