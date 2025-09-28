@@ -3,6 +3,7 @@ import { copilotApi } from 'copilot-node-sdk';
 import { Welcome } from '@/app/(home)/welcome';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
+import { ComingSoon } from '@/components/coming-soon';
 import {
   getNetworkByName,
   getProgramsByNetwork,
@@ -27,9 +28,15 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   });
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
-  const listCompanies = await copilot.listCompanies({ name: 'Nearly Media' });
+
+  // Retrieve company from Copilot/Assembly
+  const listCompanies = await copilot.listCompanies({ name: 'Grumble' });
   // console.log({ workspace, session });
   const company = listCompanies.data?.[0];
+
+   if (!company) {
+    return <ComingSoon />;
+  }
 
   // Omny API
 

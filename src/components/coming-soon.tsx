@@ -33,7 +33,7 @@ export function ComingSoon() {
               />
             </svg>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground text-balance">Podcast Network Dashboard</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground text-balance">Spoken Podcast Dashboard</h1>
           <p className="text-xl text-muted-foreground text-pretty">Exciting Features Coming Soon!</p>
         </div>
 
@@ -130,43 +130,8 @@ export function ComingSoon() {
                 <p className="text-sm text-muted-foreground">Tools to expand your reach</p>
               </div>
             </div>
-
-            {/* Email Subscription */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Stay Updated!</h3>
-              {isSubscribed ? (
-                <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-                  <p className="text-primary font-medium">Thank you for subscribing!</p>
-                  <p className="text-sm text-muted-foreground mt-1">We'll notify you when the dashboard is ready.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex gap-2 max-w-md mx-auto">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="flex-1"
-                  />
-                  <Button type="submit" className="px-6">
-                    Notify Me
-                  </Button>
-                </form>
-              )}
-            </div>
           </CardContent>
-        </Card>
-
-        {/* Footer */}
-        <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Questions? Contact us at{" "}
-            <a href="mailto:support@example.com" className="text-primary hover:underline">
-              support@example.com
-            </a>
-          </p>
-        </div>
+        </Card>  
       </div>
     </div>
   )
