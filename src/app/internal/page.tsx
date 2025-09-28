@@ -19,8 +19,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   console.log(data.workspace.id)
   console.log(data.internalUser)
   return (
-
-      <>
+    <Container>
       <div className="w-full items-center justify-between font-mono text-sm lg:flex">
         <p className="fixed left-0 top-0 flex w-full justify-center lg:static lg:w-auto">
           Internal Page&nbsp;
@@ -34,7 +33,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
         </h2>
       </div>
       <InternalPreviewNotice />
-      </>
+    </Container>
   );
 }
 
