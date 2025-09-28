@@ -24,7 +24,7 @@ export default function Error({
           {/* Friendly Message */}
           <p className="text-muted-foreground mb-6 leading-relaxed">
             We encountered an unexpected issue. Don't worry though - these things happen! You can try refreshing the
-            page or contact your portal administrator for help.
+            page or contact your administrator for help.
           </p>
 
           {/* Error Details (Collapsible) */}
