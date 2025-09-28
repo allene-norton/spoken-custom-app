@@ -53,6 +53,9 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   // Omny API
 
   const network = await getNetworkByName(company?.name);
+  if (!network){
+    return <ComingSoon />;
+  }
   // console.log(network)
 
   const programs = await getProgramsByNetwork(network?.Id);
