@@ -29,6 +29,8 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   const workspace = await copilot.retrieveWorkspace();
   const session = await copilot.getTokenPayload?.();
 
+  console.log(session)
+
   // Retrieve company from Copilot/Assembly
   const listCompanies = await copilot.listCompanies({ name: 'Nearly Media' });
   // console.log({ workspace, session });
