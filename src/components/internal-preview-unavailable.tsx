@@ -25,14 +25,7 @@ export default function InternalPreviewNotice() {
           {/* Divider */}
           <div className="w-full h-px bg-border"></div>
 
-          {/* Call to action */}
-          <div className="space-y-4">
-            <p className="text-foreground font-medium">In the meantime, preview as a test client</p>
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-              Launch Test Preview
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
+          
 
           {/* Footer note */}
           <p className="text-sm text-muted-foreground">
