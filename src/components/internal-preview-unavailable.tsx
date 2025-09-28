@@ -29,7 +29,7 @@ export default function InternalPreviewNotice() {
 
           {/* Footer note */}
           <p className="text-sm text-muted-foreground">
-            Full client preview will be available soon with enhanced features and customization options.
+            Full client preview will be available soon. In the meantime, log in as a test client with an assigned company to preview.
           </p>
         </CardContent>
       </Card>
