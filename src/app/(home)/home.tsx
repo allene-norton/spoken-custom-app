@@ -27,9 +27,16 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
     token: typeof token === 'string' ? token : undefined,
   });
   const workspace = await copilot.retrieveWorkspace();
-  const session = await copilot.getTokenPayload?.();
 
-  console.log(`SESSION:`, session)
+
+  let session;
+  try {
+    session = await copilot.getTokenPayload?.();
+    console.log(`SESSION:`, session);
+  } catch (error) {
+    console.error('Session token error:', error);
+    return <ComingSoon />;
+  }
 
   // Retrieve company from Copilot/Assembly
   const listCompanies = await copilot.listCompanies({ name: 'Nearly Media' });
