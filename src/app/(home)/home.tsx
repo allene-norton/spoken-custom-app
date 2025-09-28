@@ -39,7 +39,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
   }
 
   // Retrieve company from Copilot/Assembly
-  const listCompanies = await copilot.listCompanies({ name: 'Nearly Media' });
+  const listCompanies = await copilot.listCompanies({ name: session?.companyId });
   // console.log({ workspace, session });
   const company = listCompanies.data?.[0];
 
