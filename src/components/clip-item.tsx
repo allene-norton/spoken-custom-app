@@ -95,7 +95,7 @@ const getProcessingColor = (processingState: ClipProcessingState) => {
 
 interface ClipItemProps {
   clip: Clip;
-  onClick?: (clip: Clip) => void
+  onClick?: (clip: Clip) => void;
 }
 
 export default function ClipItem({ clip, onClick }: ClipItemProps) {
@@ -125,7 +125,10 @@ export default function ClipItem({ clip, onClick }: ClipItemProps) {
   }, [clip.Urls.ImagePublicUrl]);
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onClick?.(clip)}>
+    <Card
+      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={() => onClick?.(clip)}
+    >
       <div className="flex items-center gap-2 sm:gap-3 px-2 py-0.5">
         {/* Thumbnail - responsive sizing */}
         <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 relative overflow-hidden rounded-md bg-gray-200">
@@ -163,7 +166,9 @@ export default function ClipItem({ clip, onClick }: ClipItemProps) {
             </h3>
 
             <div className="flex flex-col items-start sm:items-center bg-muted/50 rounded-md px-2 py-1 sm:mx-2 flex-shrink-0">
-              <span className="text-xs text-muted-foreground font-medium">Downloads</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Downloads
+              </span>
               <span className="text-sm sm:text-base font-semibold text-foreground">
                 {clip.downloads?.toLocaleString() || '0'}
               </span>
@@ -191,13 +196,21 @@ export default function ClipItem({ clip, onClick }: ClipItemProps) {
                 </HoverCardContent>
               </HoverCard>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                {clip.PublishState === 'Unpublished'
-                  ? 'No date available'
-                  : new Date(clip.PublishedUtc).toLocaleDateString('en-US', {
+                {clip.VisibleAtUtc
+                  ? `Scheduled: ${new Date(
+                      clip.VisibleAtUtc,
+                    ).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',
-                    })}
+                    })}`
+                  : clip.PublishState === 'Unpublished'
+                    ? 'No date available'
+                    : new Date(clip.PublishedUtc).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
               </p>
             </div>
           </div>
